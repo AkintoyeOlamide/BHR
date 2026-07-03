@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseConfigError } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 async function confirmEmailIfNeeded(email: string) {
@@ -37,6 +38,11 @@ export async function POST(request: Request) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
+
+    const configError = getSupabaseConfigError();
+    if (configError) {
+      return NextResponse.json({ error: configError }, { status: 500 });
+    }
 
     const supabase = await createClient();
 

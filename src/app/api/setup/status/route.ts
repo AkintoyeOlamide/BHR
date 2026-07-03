@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseConfigError } from "@/lib/supabase/env";
 import { isMissingTableError } from "@/lib/setup/list-accounts";
 
 const REQUIRED_TABLES = [
@@ -11,6 +12,11 @@ const REQUIRED_TABLES = [
 
 export async function GET() {
   try {
+    const configError = getSupabaseConfigError();
+    if (configError) {
+      return NextResponse.json({ ok: false, error: configError }, { status: 500 });
+    }
+
     const admin = createAdminClient();
     const missing: string[] = [];
 

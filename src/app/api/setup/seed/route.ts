@@ -3,6 +3,7 @@ import { ROLES } from "@/lib/auth/roles";
 import { buildVmoSeedAccounts } from "@/lib/setup/build-vmo-seed";
 import { seedUserAccounts } from "@/lib/setup/seed-users";
 import { VMO_STAFF_PASSWORD } from "@/lib/setup/vmo-staff";
+import { getSupabaseConfigError } from "@/lib/supabase/env";
 
 const DEFAULT_ACCOUNTS = [
   {
@@ -21,6 +22,11 @@ const DEFAULT_ACCOUNTS = [
 
 export async function POST() {
   try {
+    const configError = getSupabaseConfigError();
+    if (configError) {
+      return NextResponse.json({ error: configError }, { status: 500 });
+    }
+
     const vmoAccounts = buildVmoSeedAccounts();
 
     const adminResult = await seedUserAccounts(DEFAULT_ACCOUNTS);
