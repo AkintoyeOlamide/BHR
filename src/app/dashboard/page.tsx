@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         .from("appraisals")
         .select(
           `
-      id, status, review_period, updated_at, kpi_overall_rating,
+      id, status, review_period, updated_at,
       cycle:appraisal_cycles(title)
     `
         )
@@ -80,11 +80,6 @@ export default async function DashboardPage() {
                       </h3>
                       {appraisal.review_period && (
                         <p className="text-sm text-slate-500">{appraisal.review_period}</p>
-                      )}
-                      {appraisal.kpi_overall_rating != null && (
-                        <p className="text-sm text-teal-700">
-                          KPI score: {Number(appraisal.kpi_overall_rating).toFixed(2)}
-                        </p>
                       )}
                     </div>
                     <span

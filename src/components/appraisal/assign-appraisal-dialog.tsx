@@ -106,16 +106,23 @@ export function AssignAppraisalDialog({
 
     let successMessage = "Appraisal assigned.";
 
-    if (body.email?.sent) {
-      successMessage = body.managerOnly
-        ? "Manager notified by email."
-        : "Appraisal assigned and the manager was emailed.";
-    } else if (body.email?.skipped && body.managerOnly) {
+    const managerSent = body.email?.sent;
+    const employeeSent = body.employeeEmail?.sent;
+
+    if (managerSent && employeeSent) {
       successMessage =
-        "Manager assignment saved. Email not sent — configure SMTP in .env.local.";
-    } else if (body.email?.skipped) {
+        "Appraisal assigned. Manager and employee were emailed with login details.";
+    } else if (managerSent) {
       successMessage =
-        "Appraisal assigned. Email not sent — configure SMTP settings in .env.local to enable notifications.";
+        body.managerOnly
+          ? "Manager notified by email with login details."
+          : "Appraisal assigned. Manager was emailed with login details.";
+    } else if (employeeSent) {
+      successMessage =
+        "Appraisal assigned. Employee was emailed with login details.";
+    } else if (body.email?.skipped || body.employeeEmail?.skipped) {
+      successMessage =
+        "Appraisal assigned. Email not sent — configure SMTP in .env.local.";
     } else if (body.managerOnly) {
       successMessage = "Manager notified.";
     }

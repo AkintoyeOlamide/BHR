@@ -10,11 +10,12 @@ import {
   AppraisalTableWrap,
   SaveButton,
 } from "@/components/appraisal/appraisal-ui";
-import { RATING_OPTIONS } from "@/lib/types/appraisal";
+import { RATING_OPTIONS, type AppraisalStatus } from "@/lib/types/appraisal";
 
 type OverallRatingPanelProps = {
   mode: "template" | "manager" | "employee";
   appraisalId?: string;
+  appraisalStatus?: AppraisalStatus | string | null;
   kpiSectionWeight: number;
   behaviouralSectionWeight: number;
   kpiOverall?: number | null;
@@ -34,6 +35,7 @@ function formatScore(value: number | null | undefined) {
 export function OverallRatingPanel({
   mode,
   appraisalId,
+  appraisalStatus = null,
   kpiSectionWeight,
   behaviouralSectionWeight,
   kpiOverall = null,
@@ -49,6 +51,9 @@ export function OverallRatingPanel({
   const [saved, setSaved] = useState(false);
   const isManager = mode === "manager" || mode === "template";
   const isTemplate = mode === "template";
+  const isEmployee = mode === "employee";
+  const employeeCanViewResults =
+    appraisalStatus === "submitted" || appraisalStatus === "completed";
 
   const computedTotal = useMemo(() => {
     const kpi = Number(kpiSectionActual) || 0;
@@ -85,32 +90,56 @@ export function OverallRatingPanel({
     <AppraisalPanel>
       <AppraisalPanelHeader
         title="Overall performance rating"
-        subtitle="Your final score combines the technical and behavioural sections using their section weights."
+        subtitle={
+          isEmployee
+            ? employeeCanViewResults
+              ? "Your final rating from your manager."
+              : "Your manager will share your final rating after they complete the review."
+            : "Your final score combines the technical and behavioural sections using their section weights."
+        }
       />
 
-      <div className="border-b border-slate-100 px-6 py-8 sm:px-8">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-white px-6 py-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
-            Total score
-          </p>
-          <p className="mt-2 text-5xl font-bold tabular-nums tracking-tight text-slate-900">
-            {formatScore(displayTotal)}
-          </p>
-          {!isTemplate && ratingLabel && (
-            <p className="mt-2 rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-800">
-              {ratingLabel}
+      {(!isEmployee || employeeCanViewResults) && (
+        <div className="border-b border-slate-100 px-6 py-8 sm:px-8">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-white px-6 py-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
+              Total score
             </p>
-          )}
-          {isTemplate && (
-            <p className="mt-3 max-w-md text-sm text-slate-500">
-              Scores populate automatically when managers rate assigned
-              appraisals ({kpiSectionWeight}% technical +{" "}
-              {behaviouralSectionWeight}% behavioural).
+            <p className="mt-2 text-5xl font-bold tabular-nums tracking-tight text-slate-900">
+              {formatScore(displayTotal)}
             </p>
-          )}
+            {!isTemplate && ratingLabel && (
+              <p className="mt-2 rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-800">
+                {ratingLabel}
+              </p>
+            )}
+            {isTemplate && (
+              <p className="mt-3 max-w-md text-sm text-slate-500">
+                Scores populate automatically when managers rate assigned
+                appraisals ({kpiSectionWeight}% technical +{" "}
+                {behaviouralSectionWeight}% behavioural).
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
+      {isEmployee && !employeeCanViewResults && (
+        <div className="border-b border-slate-100 px-6 py-8 sm:px-8">
+          <div className="rounded-2xl border border-amber-100 bg-amber-50 px-6 py-8 text-center">
+            <p className="text-sm font-medium text-amber-900">
+              Rating not available yet
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-amber-800">
+              Complete your sections in the other tabs. Your manager will rate
+              you and your final score will appear here when the review is
+              finished.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(!isEmployee || employeeCanViewResults) && (
       <AppraisalTableWrap>
         <table className="w-full min-w-[600px] border-collapse text-sm">
           <thead>
@@ -153,6 +182,7 @@ export function OverallRatingPanel({
           </tbody>
         </table>
       </AppraisalTableWrap>
+      )}
 
       {!isTemplate && isManager && appraisalId && (
         <form
@@ -194,7 +224,7 @@ export function OverallRatingPanel({
         </form>
       )}
 
-      {!isTemplate && mode === "employee" && (
+      {!isTemplate && mode === "employee" && employeeCanViewResults && (
         <div className="border-t border-slate-100 px-6 py-6 text-sm text-slate-600 sm:px-8">
           <p>
             Your rating:{" "}

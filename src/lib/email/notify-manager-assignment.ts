@@ -1,4 +1,9 @@
 import { getAppUrl } from "@/lib/email/env";
+import {
+  buildLoginCredentialsHtml,
+  buildLoginCredentialsText,
+  type LoginCredentials,
+} from "@/lib/email/login-credentials-block";
 import { sendEmail } from "@/lib/email/send";
 
 export type ManagerAssignmentEmailInput = {
@@ -10,6 +15,7 @@ export type ManagerAssignmentEmailInput = {
   reviewPeriod?: string | null;
   appraisalId: string;
   managerOnly?: boolean;
+  credentials: LoginCredentials;
 };
 
 export function buildManagerAssignmentEmail(input: ManagerAssignmentEmailInput) {
@@ -34,6 +40,8 @@ export function buildManagerAssignmentEmail(input: ManagerAssignmentEmailInput) 
       `${input.hrName} (HR) has selected you as an appraiser on BHR.`,
       details,
       "",
+      buildLoginCredentialsText(input.credentials),
+      "",
       `Sign in to view your assigned reviews: ${loginUrl}`,
       "",
       "Thank you,",
@@ -47,6 +55,7 @@ export function buildManagerAssignmentEmail(input: ManagerAssignmentEmailInput) 
       <p>Hello <strong>${escapeHtml(input.managerName)}</strong>,</p>
       <p><strong>${escapeHtml(input.hrName)}</strong> (HR) has selected you as an appraiser on <strong>BHR</strong>.</p>
       ${details ? `<div style="margin:20px 0;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc"><p style="margin:0">${escapeHtml(details).replace(/\n/g, "<br>")}</p></div>` : ""}
+      ${buildLoginCredentialsHtml(input.credentials)}
       <p>Please sign in to view and complete any appraisals assigned to you.</p>
       <p style="margin:24px 0">
         <a href="${loginUrl}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">
@@ -70,6 +79,8 @@ export function buildManagerAssignmentEmail(input: ManagerAssignmentEmailInput) 
     `Employee: ${input.employeeName}`,
     details,
     "",
+    buildLoginCredentialsText(input.credentials),
+    "",
     `Sign in to complete the review: ${loginUrl}`,
     reviewUrl ? `Open this appraisal directly: ${reviewUrl}` : null,
     "",
@@ -88,6 +99,7 @@ export function buildManagerAssignmentEmail(input: ManagerAssignmentEmailInput) 
         ${input.cycleTitle ? `<p style="margin:0 0 8px"><strong>Review cycle:</strong> ${escapeHtml(input.cycleTitle)}</p>` : ""}
         ${input.reviewPeriod ? `<p style="margin:0"><strong>Review period:</strong> ${escapeHtml(input.reviewPeriod)}</p>` : ""}
       </div>
+      ${buildLoginCredentialsHtml(input.credentials)}
       <p>Please sign in and complete the technical, behavioural, and overall review sections.</p>
       <p style="margin:24px 0">
         <a href="${loginUrl}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">

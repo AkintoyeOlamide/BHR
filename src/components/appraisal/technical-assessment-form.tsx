@@ -74,6 +74,7 @@ export function TechnicalAssessmentForm({
   const router = useRouter();
   const isTemplate = mode === "template";
   const isManager = mode === "manager" || isTemplate;
+  const isEmployee = mode === "employee";
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -244,17 +245,26 @@ export function TechnicalAssessmentForm({
         />
       </div>
 
-      <AppraisalMetricBar
-        metrics={[
-          { label: "Section weight", value: `${formHeader.kpi_section_weight}%` },
-          {
-            label: "Section score",
-            value: sectionActual.toFixed(2),
-            highlight: true,
-          },
-          { label: "Row total", value: overallRating.toFixed(2) },
-        ]}
-      />
+      {isManager ? (
+        <AppraisalMetricBar
+          metrics={[
+            { label: "Section weight", value: `${formHeader.kpi_section_weight}%` },
+            {
+              label: "Section score",
+              value: sectionActual.toFixed(2),
+              highlight: true,
+            },
+            { label: "Row total", value: overallRating.toFixed(2) },
+          ]}
+        />
+      ) : (
+        <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
+          <p className="text-sm text-slate-600">
+            Review each KPI below and describe your results in the measurement
+            area. Your manager will complete the ratings separately.
+          </p>
+        </div>
+      )}
 
       {isManager && (
         <AppraisalToolbar
@@ -275,20 +285,26 @@ export function TechnicalAssessmentForm({
           <colgroup>
             <col className="w-12" />
             <col className="w-[28%]" />
-            <col className="w-28" />
-            <col className="w-28" />
-            <col className="w-[28%]" />
-            <col className="w-20" />
+            {!isEmployee && <col className="w-28" />}
+            {!isEmployee && <col className="w-28" />}
+            <col className={isEmployee ? "w-[50%]" : "w-[28%]"} />
+            {!isEmployee && <col className="w-20" />}
             {isManager && <col className="w-12" />}
           </colgroup>
           <thead>
             <tr className="border-b border-slate-200">
               <th className="w-12 px-3 py-3 text-center">No.</th>
               <th className="px-3 py-3 text-left">Key performance indicator</th>
-              <th className="w-24 px-2 py-3 text-center">Weight</th>
-              <th className="w-28 px-2 py-3 text-center">Rating</th>
+              {!isEmployee && (
+                <th className="w-24 px-2 py-3 text-center">Weight</th>
+              )}
+              {!isEmployee && (
+                <th className="w-28 px-2 py-3 text-center">Rating</th>
+              )}
               <th className="px-3 py-3 text-left">Measurement area</th>
-              <th className="w-20 px-2 py-3 text-center">Score</th>
+              {!isEmployee && (
+                <th className="w-20 px-2 py-3 text-center">Score</th>
+              )}
               {isManager && <th className="w-12 px-2 py-3" />}
             </tr>
           </thead>
@@ -309,41 +325,49 @@ export function TechnicalAssessmentForm({
                       className={cellInputClass}
                     />
                   </td>
-                  <td className="p-2">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        step={0.01}
-                        value={kpi.weight === 0 ? "" : kpi.weight}
-                        onChange={(e) => updateKpi(index, "weight", e.target.value)}
-                        readOnly={!isManager}
-                        className={cellNumberClass}
-                      />
-                      <span className="shrink-0 text-xs font-medium text-slate-500">
-                        %
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <select
-                      value={kpi.rating ?? ""}
-                      onChange={(e) => updateKpi(index, "rating", e.target.value)}
-                      disabled={!isManager}
-                      className={cellSelectClass}
-                    >
-                      <option value="">—</option>
-                      {Array.from(
-                        { length: KPI_RATING_MAX - KPI_RATING_MIN + 1 },
-                        (_, i) => KPI_RATING_MIN + i
-                      ).map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                  {!isEmployee && (
+                    <td className="p-2">
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.01}
+                          value={kpi.weight === 0 ? "" : kpi.weight}
+                          onChange={(e) =>
+                            updateKpi(index, "weight", e.target.value)
+                          }
+                          readOnly={!isManager}
+                          className={cellNumberClass}
+                        />
+                        <span className="shrink-0 text-xs font-medium text-slate-500">
+                          %
+                        </span>
+                      </div>
+                    </td>
+                  )}
+                  {!isEmployee && (
+                    <td className="p-2">
+                      <select
+                        value={kpi.rating ?? ""}
+                        onChange={(e) =>
+                          updateKpi(index, "rating", e.target.value)
+                        }
+                        disabled={!isManager}
+                        className={cellSelectClass}
+                      >
+                        <option value="">—</option>
+                        {Array.from(
+                          { length: KPI_RATING_MAX - KPI_RATING_MIN + 1 },
+                          (_, i) => KPI_RATING_MIN + i
+                        ).map((n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   <td className="p-2">
                     <input
                       type="text"
@@ -355,9 +379,11 @@ export function TechnicalAssessmentForm({
                       className={cellInputClass}
                     />
                   </td>
-                  <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
-                    {rowScore.toFixed(2)}
-                  </td>
+                  {!isEmployee && (
+                    <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
+                      {rowScore.toFixed(2)}
+                    </td>
+                  )}
                   {isManager && (
                     <td className="px-1 py-2 text-center">
                       <RowRemoveButton onClick={() => removeKpiRow(index)} />
@@ -367,25 +393,27 @@ export function TechnicalAssessmentForm({
               );
             })}
           </tbody>
-          <tfoot>
-            <tr className="border-t-2 border-slate-200 font-semibold">
-              <td colSpan={2} className="px-4 py-3 text-right text-slate-600">
-                Total weighting
-              </td>
-              <td
-                className={`px-2 py-3 text-center tabular-nums ${
-                  weightsOk ? "text-slate-900" : "text-red-600"
-                }`}
-              >
-                {totalWeight.toFixed(2)}%
-              </td>
-              <td colSpan={isManager ? 3 : 2} />
-              <td className="px-2 py-3 text-center tabular-nums text-slate-900">
-                {overallRating.toFixed(2)}
-              </td>
-              {isManager && <td />}
-            </tr>
-          </tfoot>
+          {isManager && (
+            <tfoot>
+              <tr className="border-t-2 border-slate-200 font-semibold">
+                <td colSpan={2} className="px-4 py-3 text-right text-slate-600">
+                  Total weighting
+                </td>
+                <td
+                  className={`px-2 py-3 text-center tabular-nums ${
+                    weightsOk ? "text-slate-900" : "text-red-600"
+                  }`}
+                >
+                  {totalWeight.toFixed(2)}%
+                </td>
+                <td colSpan={3} />
+                <td className="px-2 py-3 text-center tabular-nums text-slate-900">
+                  {overallRating.toFixed(2)}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
         </table>
       </AppraisalTableWrap>
 
@@ -402,7 +430,11 @@ export function TechnicalAssessmentForm({
       </div>
 
       <AppraisalStickyFooter
-        helper={`Score = (Weight ÷ 100) × Rating · Section = ${formHeader.kpi_section_weight}% of overall`}
+        helper={
+          isEmployee
+            ? "Describe your results in each measurement area, then save."
+            : `Score = (Weight ÷ 100) × Rating · Section = ${formHeader.kpi_section_weight}% of overall`
+        }
       >
         <div className="flex flex-wrap items-center gap-2">
           <SaveButton

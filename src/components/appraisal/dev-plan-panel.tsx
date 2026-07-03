@@ -62,6 +62,7 @@ export function DevPlanPanel({
 }: DevPlanPanelProps) {
   const router = useRouter();
   const isTemplate = mode === "template";
+  const isEmployee = mode === "employee";
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -104,7 +105,11 @@ export function DevPlanPanel({
     <AppraisalPanel>
       <AppraisalPanelHeader
         title="Development plan"
-        subtitle="Capture strengths, growth areas, and concrete actions for the next review period."
+        subtitle={
+          isEmployee
+            ? "Share your goals for this review period."
+            : "Capture strengths, growth areas, and concrete actions for the next review period."
+        }
       />
 
       <div className="space-y-6 px-6 py-6 sm:px-8">
@@ -115,32 +120,36 @@ export function DevPlanPanel({
           value={form.goals}
           onChange={(goals) => setForm((f) => ({ ...f, goals }))}
         />
-        <Field
-          label="Strengths"
-          hint="What is this person doing well?"
-          name="strengths"
-          value={form.strengths}
-          onChange={(strengths) => setForm((f) => ({ ...f, strengths }))}
-        />
-        <Field
-          label="Areas for improvement"
-          hint="Where is there room to grow?"
-          name="areas_for_improvement"
-          value={form.areas_for_improvement}
-          onChange={(areas_for_improvement) =>
-            setForm((f) => ({ ...f, areas_for_improvement }))
-          }
-        />
-        <Field
-          label="Development actions"
-          hint="Specific training, projects, or support agreed with the employee."
-          name="development_plan"
-          value={form.development_plan}
-          onChange={(development_plan) =>
-            setForm((f) => ({ ...f, development_plan }))
-          }
-          rows={6}
-        />
+        {!isEmployee && (
+          <>
+            <Field
+              label="Strengths"
+              hint="What is this person doing well?"
+              name="strengths"
+              value={form.strengths}
+              onChange={(strengths) => setForm((f) => ({ ...f, strengths }))}
+            />
+            <Field
+              label="Areas for improvement"
+              hint="Where is there room to grow?"
+              name="areas_for_improvement"
+              value={form.areas_for_improvement}
+              onChange={(areas_for_improvement) =>
+                setForm((f) => ({ ...f, areas_for_improvement }))
+              }
+            />
+            <Field
+              label="Development actions"
+              hint="Specific training, projects, or support agreed with the employee."
+              name="development_plan"
+              value={form.development_plan}
+              onChange={(development_plan) =>
+                setForm((f) => ({ ...f, development_plan }))
+              }
+              rows={6}
+            />
+          </>
+        )}
 
         {message && (
           <AppraisalAlert
@@ -151,10 +160,22 @@ export function DevPlanPanel({
         )}
       </div>
 
-      <AppraisalStickyFooter helper="Save when you've finished this section — you can return anytime via the tabs above.">
+      <AppraisalStickyFooter
+        helper={
+          isEmployee
+            ? "Save your goals when you are done — you can come back anytime."
+            : "Save when you've finished this section — you can return anytime via the tabs above."
+        }
+      >
         <SaveButton
           loading={loading}
-          label={isTemplate ? "Save template" : "Save dev plan"}
+          label={
+            isTemplate
+              ? "Save template"
+              : isEmployee
+                ? "Save my goals"
+                : "Save dev plan"
+          }
           onClick={handleSave}
         />
       </AppraisalStickyFooter>

@@ -2,9 +2,22 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth/profile";
 import { canAccessManager } from "@/lib/auth/roles";
-import { canManageAppraisal, isFullHrSession } from "@/lib/auth/hr-access";
+import { isFullHrSession } from "@/lib/auth/hr-access";
+import { ensureUserCredentials } from "@/lib/auth/ensure-user-credentials";
 import { copyTemplateToAppraisal } from "@/lib/kpi/template";
+import { notifyEmployeeOfAssignment } from "@/lib/email/notify-employee-assignment";
 import { notifyManagerOfAssignment } from "@/lib/email/notify-manager-assignment";
+import type { SendEmailResult } from "@/lib/email/send";
+
+function formatEmailResult(result: SendEmailResult) {
+  return result.ok
+    ? { sent: true, id: result.id }
+    : {
+        sent: false,
+        skipped: "skipped" in result ? result.skipped : false,
+        error: "error" in result ? result.error : undefined,
+      };
+}
 
 export async function GET() {
   const session = await requireProfile();
@@ -67,7 +80,7 @@ export async function POST(request: Request) {
   if (reviewerId && !employeeId) {
     const { data: reviewer } = await supabase
       .from("profiles")
-      .select("id, full_name, email")
+      .select("id, full_name, email, role, department, job_title")
       .eq("id", reviewerId)
       .single();
 
@@ -75,6 +88,27 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Selected manager was not found." },
         { status: 400 }
+      );
+    }
+
+    let credentials;
+    try {
+      credentials = await ensureUserCredentials({
+        email: reviewer.email,
+        full_name: reviewer.full_name,
+        role: reviewer.role,
+        department: reviewer.department,
+        job_title: reviewer.job_title,
+      });
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Could not prepare manager login.",
+        },
+        { status: 500 }
       );
     }
 
@@ -87,18 +121,13 @@ export async function POST(request: Request) {
       reviewPeriod: body.review_period ?? null,
       appraisalId: "",
       managerOnly: true,
+      credentials,
     });
 
     return NextResponse.json({
       ok: true,
       managerOnly: true,
-      email: emailResult.ok
-        ? { sent: true, id: emailResult.id }
-        : {
-            sent: false,
-            skipped: "skipped" in emailResult ? emailResult.skipped : false,
-            error: "error" in emailResult ? emailResult.error : undefined,
-          },
+      email: formatEmailResult(emailResult),
     });
   }
 
@@ -124,7 +153,7 @@ export async function POST(request: Request) {
 
   const { data: employee } = await supabase
     .from("profiles")
-    .select("id, full_name, department, job_title")
+    .select("id, full_name, email, role, department, job_title")
     .eq("id", employeeId)
     .single();
 
@@ -141,11 +170,18 @@ export async function POST(request: Request) {
     .eq("id", cycleId)
     .maybeSingle();
 
-  let reviewer: { id: string; full_name: string; email: string } | null = null;
+  let reviewer: {
+    id: string;
+    full_name: string;
+    email: string;
+    role: string;
+    department: string | null;
+    job_title: string | null;
+  } | null = null;
   if (reviewerId) {
     const { data: reviewerProfile } = await supabase
       .from("profiles")
-      .select("id, full_name, email, job_title, department")
+      .select("id, full_name, email, role, job_title, department")
       .eq("id", reviewerId)
       .single();
 
@@ -184,26 +220,67 @@ export async function POST(request: Request) {
     // Template copy is optional if migration not run yet
   }
 
-  const emailResult = reviewer
-    ? await notifyManagerOfAssignment({
+  const hrName = session.profile.full_name || session.user.email || "HR";
+  const reviewPeriod = body.review_period ?? null;
+  let managerEmail = null;
+  let employeeEmail = null;
+
+  try {
+    const employeeCredentials = await ensureUserCredentials({
+      email: employee.email,
+      full_name: employee.full_name,
+      role: employee.role,
+      department: employee.department,
+      job_title: employee.job_title,
+    });
+
+    employeeEmail = await notifyEmployeeOfAssignment({
+      employeeEmail: employee.email,
+      employeeName: employee.full_name,
+      hrName,
+      cycleTitle: cycle?.title ?? null,
+      reviewPeriod,
+      credentials: employeeCredentials,
+    });
+
+    if (reviewer) {
+      const managerCredentials = await ensureUserCredentials({
+        email: reviewer.email,
+        full_name: reviewer.full_name,
+        role: reviewer.role,
+        department: reviewer.department,
+        job_title: reviewer.job_title,
+      });
+
+      managerEmail = await notifyManagerOfAssignment({
         managerEmail: reviewer.email,
         managerName: reviewer.full_name,
-        hrName: session.profile.full_name || session.user.email || "HR",
+        hrName,
         employeeName: employee.full_name,
         cycleTitle: cycle?.title ?? null,
-        reviewPeriod: body.review_period ?? null,
+        reviewPeriod,
         appraisalId: data.id,
-      })
-    : { ok: false as const, skipped: true, error: "No manager selected." };
+        credentials: managerCredentials,
+      });
+    }
+  } catch (error) {
+    return NextResponse.json(
+      {
+        appraisal: data,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Appraisal created but login email could not be prepared.",
+        email: managerEmail ? formatEmailResult(managerEmail) : null,
+        employeeEmail: employeeEmail ? formatEmailResult(employeeEmail) : null,
+      },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({
     appraisal: data,
-    email: emailResult.ok
-      ? { sent: true, id: emailResult.id }
-      : {
-          sent: false,
-          skipped: "skipped" in emailResult ? emailResult.skipped : false,
-          error: "error" in emailResult ? emailResult.error : undefined,
-        },
+    email: reviewer && managerEmail ? formatEmailResult(managerEmail) : null,
+    employeeEmail: employeeEmail ? formatEmailResult(employeeEmail) : null,
   });
 }

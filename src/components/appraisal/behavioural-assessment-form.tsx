@@ -63,6 +63,7 @@ export function BehaviouralAssessmentForm({
   const router = useRouter();
   const isTemplate = mode === "template";
   const isManager = mode === "manager" || isTemplate;
+  const isEmployee = mode === "employee";
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -174,20 +175,33 @@ export function BehaviouralAssessmentForm({
       <AppraisalPanelHeader
         badge={`${formSectionWeight}% of total`}
         title="Behavioural skills & competence"
-        subtitle="Rate how the employee demonstrated key behaviours. Include specific examples in comments."
+        subtitle={
+          isEmployee
+            ? "Add your own examples for each behaviour. Your manager completes the ratings."
+            : "Rate how the employee demonstrated key behaviours. Include specific examples in comments."
+        }
       />
 
-      <AppraisalMetricBar
-        metrics={[
-          { label: "Section weight", value: `${formSectionWeight}%` },
-          {
-            label: "Section score",
-            value: sectionActual.toFixed(2),
-            highlight: true,
-          },
-          { label: "Row total", value: overallRating.toFixed(2) },
-        ]}
-      />
+      {isManager ? (
+        <AppraisalMetricBar
+          metrics={[
+            { label: "Section weight", value: `${formSectionWeight}%` },
+            {
+              label: "Section score",
+              value: sectionActual.toFixed(2),
+              highlight: true,
+            },
+            { label: "Row total", value: overallRating.toFixed(2) },
+          ]}
+        />
+      ) : (
+        <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
+          <p className="text-sm text-slate-600">
+            Share real examples for each behaviour below. Ratings and scores are
+            completed by your manager.
+          </p>
+        </div>
+      )}
 
       {isManager && (
         <AppraisalToolbar
@@ -208,25 +222,33 @@ export function BehaviouralAssessmentForm({
           <colgroup>
             <col className="w-12" />
             <col className="w-[22%]" />
-            <col className="w-28" />
-            <col className="w-28" />
-            <col className="w-[34%]" />
-            <col className="w-20" />
+            {!isEmployee && <col className="w-28" />}
+            {!isEmployee && <col className="w-28" />}
+            <col className={isEmployee ? "w-[50%]" : "w-[34%]"} />
+            {!isEmployee && <col className="w-20" />}
             {isManager && <col className="w-12" />}
           </colgroup>
           <thead>
             <tr className="border-b border-slate-200">
               <th className="w-12 px-3 py-3 text-center">No.</th>
               <th className="px-3 py-3 text-left">Key measurement</th>
-              <th className="w-24 px-2 py-3 text-center">Weight</th>
-              <th className="w-28 px-2 py-3 text-center">Rating</th>
+              {!isEmployee && (
+                <th className="w-24 px-2 py-3 text-center">Weight</th>
+              )}
+              {!isEmployee && (
+                <th className="w-28 px-2 py-3 text-center">Rating</th>
+              )}
               <th className="px-3 py-3 text-left">
                 Comments
                 <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal text-slate-400">
-                  Be specific — give one real example
+                  {isEmployee
+                    ? "Describe a real example from your work"
+                    : "Be specific — give one real example"}
                 </span>
               </th>
-              <th className="w-20 px-2 py-3 text-center">Score</th>
+              {!isEmployee && (
+                <th className="w-20 px-2 py-3 text-center">Score</th>
+              )}
               {isManager && <th className="w-12 px-2 py-3" />}
             </tr>
           </thead>
@@ -252,48 +274,52 @@ export function BehaviouralAssessmentForm({
                       className={cellInputClass}
                     />
                   </td>
-                  <td className="p-2">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        step={0.01}
-                        value={item.weight === 0 ? "" : item.weight}
+                  {!isEmployee && (
+                    <td className="p-2">
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.01}
+                          value={item.weight === 0 ? "" : item.weight}
+                          onChange={(e) =>
+                            updateItem(index, "weight", e.target.value)
+                          }
+                          readOnly={!isManager}
+                          className={cellNumberClass}
+                        />
+                        <span className="shrink-0 text-xs font-medium text-slate-500">
+                          %
+                        </span>
+                      </div>
+                    </td>
+                  )}
+                  {!isEmployee && (
+                    <td className="p-2">
+                      <select
+                        value={item.rating ?? ""}
                         onChange={(e) =>
-                          updateItem(index, "weight", e.target.value)
+                          updateItem(index, "rating", e.target.value)
                         }
-                        readOnly={!isManager}
-                        className={cellNumberClass}
-                      />
-                      <span className="shrink-0 text-xs font-medium text-slate-500">
-                        %
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <select
-                      value={item.rating ?? ""}
-                      onChange={(e) =>
-                        updateItem(index, "rating", e.target.value)
-                      }
-                      disabled={!isManager}
-                      className={cellSelectClass}
-                    >
-                      <option value="">—</option>
-                      {Array.from(
-                        {
-                          length:
-                            BEHAVIOURAL_RATING_MAX - BEHAVIOURAL_RATING_MIN + 1,
-                        },
-                        (_, i) => BEHAVIOURAL_RATING_MIN + i
-                      ).map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                        disabled={!isManager}
+                        className={cellSelectClass}
+                      >
+                        <option value="">—</option>
+                        {Array.from(
+                          {
+                            length:
+                              BEHAVIOURAL_RATING_MAX - BEHAVIOURAL_RATING_MIN + 1,
+                          },
+                          (_, i) => BEHAVIOURAL_RATING_MIN + i
+                        ).map((n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   <td className="p-2">
                     <textarea
                       value={item.comments}
@@ -305,9 +331,11 @@ export function BehaviouralAssessmentForm({
                       className={cellTextareaClass}
                     />
                   </td>
-                  <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
-                    {rowScore.toFixed(2)}
-                  </td>
+                  {!isEmployee && (
+                    <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
+                      {rowScore.toFixed(2)}
+                    </td>
+                  )}
                   {isManager && (
                     <td className="px-1 py-2 text-center">
                       <RowRemoveButton onClick={() => removeRow(index)} />
@@ -317,25 +345,27 @@ export function BehaviouralAssessmentForm({
               );
             })}
           </tbody>
-          <tfoot>
-            <tr className="border-t-2 border-slate-200 font-semibold">
-              <td colSpan={2} className="px-4 py-3 text-right text-slate-600">
-                Total weighting
-              </td>
-              <td
-                className={`px-2 py-3 text-center tabular-nums ${
-                  weightsOk ? "text-slate-900" : "text-red-600"
-                }`}
-              >
-                {totalWeight.toFixed(2)}%
-              </td>
-              <td colSpan={isManager ? 3 : 2} />
-              <td className="px-2 py-3 text-center tabular-nums text-violet-700">
-                {sectionActual.toFixed(2)}
-              </td>
-              {isManager && <td />}
-            </tr>
-          </tfoot>
+          {isManager && (
+            <tfoot>
+              <tr className="border-t-2 border-slate-200 font-semibold">
+                <td colSpan={2} className="px-4 py-3 text-right text-slate-600">
+                  Total weighting
+                </td>
+                <td
+                  className={`px-2 py-3 text-center tabular-nums ${
+                    weightsOk ? "text-slate-900" : "text-red-600"
+                  }`}
+                >
+                  {totalWeight.toFixed(2)}%
+                </td>
+                <td colSpan={3} />
+                <td className="px-2 py-3 text-center tabular-nums text-violet-700">
+                  {sectionActual.toFixed(2)}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
         </table>
       </AppraisalTableWrap>
 
@@ -352,7 +382,11 @@ export function BehaviouralAssessmentForm({
       </div>
 
       <AppraisalStickyFooter
-        helper={`Score = (Weight ÷ 100) × Rating · Section = ${formSectionWeight}% of overall`}
+        helper={
+          isEmployee
+            ? "Add your examples in the comments column, then save."
+            : `Score = (Weight ÷ 100) × Rating · Section = ${formSectionWeight}% of overall`
+        }
       >
         <SaveButton
           loading={loading}

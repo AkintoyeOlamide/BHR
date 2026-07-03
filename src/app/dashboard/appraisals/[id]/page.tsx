@@ -229,6 +229,8 @@ export default async function EmployeeAppraisalPage({ params }: PageProps) {
 
                     appraisalId={appraisal.id}
 
+                    appraisalStatus={appraisal.status}
+
                     kpiSectionWeight={
 
                       Number(appraisal.kpi_section_weight) || KPI_SECTION_WEIGHT_DEFAULT
