@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BHR — Business HR",
-  description: "Modern HR and performance management for your team",
+  title: "BHR | Your work review portal",
+  description: "Sign in, complete your review, and track your progress in one simple place.",
 };
 
 export default function RootLayout({

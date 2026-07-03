@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --accent: #0d9488;
-  --accent-light: #14b8a6;
-  --muted: #64748b;
-  --card: #ffffff;
-  --border: #e2e8f0;
+  --background: #06060f;
+  --foreground: #f8fafc;
+  --accent: #a855f7;
+  --accent-light: #e879f9;
+  --muted: #94a3b8;
+  --card: #0f0f1a;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 @theme inline {
@@ -25,4 +25,234 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Portal / dashboard pages — always dark text on light backgrounds */
+.portal-light {
+  color: #0f172a;
+}
+
+.portal-light input,
+.portal-light select,
+.portal-light textarea {
+  color: #0f172a !important;
+  background-color: #ffffff;
+}
+
+.portal-light input::placeholder,
+.portal-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.portal-light input:disabled,
+.portal-light select:disabled,
+.portal-light input[readonly],
+.portal-light select:disabled {
+  color: #334155 !important;
+  background-color: #f8fafc !important;
+}
+
+.portal-light select option {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+/* ── Portal & appraisal UI ── */
+
+.portal-page {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.08), transparent),
+    #f8fafc;
+}
+
+.appraisal-panel table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.appraisal-panel table tbody td {
+  vertical-align: middle;
+}
+
+.appraisal-panel table tbody td input,
+.appraisal-panel table tbody td select,
+.appraisal-panel table tbody td textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.appraisal-panel table thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.appraisal-panel table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.appraisal-panel table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.appraisal-panel table tbody tr:nth-child(even) {
+  background-color: #fcfcfd;
+}
+
+.appraisal-panel table tbody tr:nth-child(even):hover {
+  background-color: #f8fafc;
+}
+
+.appraisal-panel table tfoot tr {
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+}
+
+@keyframes appraisal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.appraisal-workspace [role="tabpanel"] {
+  animation: appraisal-fade-in 0.25s ease-out;
+}
+
+/* ── Landing animations ── */
+
+@keyframes gradient-shift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes gradient-shift-reverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 30px) scale(0.95); }
+  66% { transform: translate(20px, -20px) scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(6deg); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-16px) rotate(-4deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes orbit-slow {
+  0%, 100% { transform: translate(0, 0); opacity: 0.6; }
+  25% { transform: translate(40px, -30px); opacity: 1; }
+  50% { transform: translate(20px, 20px); opacity: 0.6; }
+  75% { transform: translate(-30px, 10px); opacity: 0.9; }
+}
+
+@keyframes orbit-medium {
+  0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+  33% { transform: translate(-25px, 35px); opacity: 1; }
+  66% { transform: translate(35px, -15px); opacity: 0.7; }
+}
+
+@keyframes orbit-fast {
+  0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+  50% { transform: translate(-20px, -25px); opacity: 1; }
+}
+
+@keyframes word-swap {
+  0% { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  15% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  85% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-16px); filter: blur(4px); }
+}
+
+@keyframes border-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 12s ease-in-out infinite;
+}
+
+.animate-gradient-shift-reverse {
+  animation: gradient-shift-reverse 14s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 7s ease-in-out infinite 1s;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite 0.5s;
+}
+
+.animate-orbit-slow {
+  animation: orbit-slow 10s ease-in-out infinite;
+}
+
+.animate-orbit-medium {
+  animation: orbit-medium 8s ease-in-out infinite;
+}
+
+.animate-orbit-fast {
+  animation: orbit-fast 6s ease-in-out infinite;
+}
+
+.animate-word-swap {
+  animation: word-swap 2.8s ease-in-out;
+}
+
+.animate-border-spin {
+  animation: border-spin 4s linear infinite;
+}
+
+/* Auth card glow follows cursor */
+.auth-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  background: radial-gradient(
+    400px circle at var(--mouse-x) var(--mouse-y),
+    rgba(168, 85, 247, 0.15),
+    transparent 40%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-card-glow > .relative {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scroll reveal */
+.reveal-card {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal-card.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
