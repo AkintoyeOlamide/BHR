@@ -1,10 +1,11 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PortalShell } from "@/components/layouts/portal-shell";
 import { requireProfile } from "@/lib/auth/profile";
 import { canAccessAdmin } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
+import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 import { getPortalNav } from "@/lib/navigation/portal-nav";
 
 export default async function AdminPage() {
@@ -26,65 +27,63 @@ export default async function AdminPage() {
         .limit(5),
     ]);
 
+  const stats = [
+    { label: "Employees", value: employeeCount ?? 0, tone: "portal-stat-tile--blue" },
+    { label: "Review cycles", value: cycleCount ?? 0, tone: "portal-stat-tile--violet" },
+    { label: "Appraisals", value: appraisalCount ?? 0, tone: "portal-stat-tile--teal" },
+  ] as const;
+
   return (
     <PortalShell
       title="Admin"
-      subtitle="Manage the full BHR system — staff, review cycles, and all appraisals."
+      subtitle="Manage the full Bitachon HR system — staff, review cycles, and all appraisals."
       role={session.profile.role}
       nav={getPortalNav(session.profile.role, session.profile.email)}
     >
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: "Employees", value: employeeCount ?? 0 },
-          { label: "Review cycles", value: cycleCount ?? 0 },
-          { label: "Appraisals", value: appraisalCount ?? 0 },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-          >
-            <p className="text-sm text-slate-500">{stat.label}</p>
-            <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
+      <div className="portal-stat-grid">
+        {stats.map((stat) => (
+          <div key={stat.label} className={`portal-stat-tile ${stat.tone}`}>
+            <p className="portal-stat-value">{stat.value}</p>
+            <p className="portal-stat-label">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      <section className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-6">
-        <h2 className="font-semibold text-violet-900">Default admin accounts</h2>
-        <ul className="mt-3 space-y-2 text-sm text-violet-800">
+      <section className="portal-surface mt-12">
+        <h2 className="portal-section-title">Default admin accounts</h2>
+        <ul className="mt-4 space-y-2 text-sm text-stone-600">
           <li>
-            <strong>Super Admin:</strong> admin@bhr.com / bhradmin
+            <strong className="font-medium text-stone-900">Super Admin:</strong> admin@bhr.com / bhradmin
           </li>
           <li>
-            <strong>HR Manager:</strong> hr@bhr.com / bhradmin
+            <strong className="font-medium text-stone-900">HR Manager:</strong> hr@bhr.com / bhradmin
           </li>
         </ul>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-12">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-slate-900">Recent appraisals</h2>
-          <Link
-            href="/admin/appraisals"
-            className="text-sm font-medium text-violet-600 hover:text-violet-500"
-          >
-            View all appraisals →
+          <h2 className="portal-section-title">Recent appraisals</h2>
+          <Link href="/admin/appraisals" className="portal-link">
+            View all →
           </Link>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {(recentAppraisals ?? []).length === 0 ? (
-            <p className="text-sm text-slate-600">No appraisals yet. HR can assign them from the manager area.</p>
+            <p className="text-sm text-stone-500">
+              No appraisals yet. HR can assign them from the manager area.
+            </p>
           ) : (
             recentAppraisals?.map((item) => (
               <Link
                 key={item.id}
                 href={`/manager/appraisals/${item.id}`}
-                className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-violet-200"
+                className="portal-list-item"
               >
-                <span className="font-medium text-slate-900">
+                <span className="font-medium text-stone-900">
                   {(item.employee as { full_name?: string })?.full_name ?? "Employee"}
                 </span>
-                <span className="text-sm text-slate-500">
+                <span className={appraisalStatusBadgeClass(item.status)}>
                   {APPRAISAL_STATUS_LABELS[item.status as keyof typeof APPRAISAL_STATUS_LABELS]}
                 </span>
               </Link>

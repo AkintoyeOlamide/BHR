@@ -80,24 +80,18 @@ export function StaffDirectory({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Employees</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">
-            {counts.employees}
-          </p>
+      <div className="portal-stat-grid">
+        <div className="portal-stat-tile portal-stat-tile--blue">
+          <p className="portal-stat-value">{counts.employees}</p>
+          <p className="portal-stat-label">Employees</p>
         </div>
-        <div className="rounded-2xl border border-sky-200 bg-sky-50/50 p-5 shadow-sm">
-          <p className="text-sm text-sky-700">Managers</p>
-          <p className="mt-1 text-2xl font-semibold text-sky-900">
-            {counts.managers}
-          </p>
+        <div className="portal-stat-tile portal-stat-tile--violet">
+          <p className="portal-stat-value">{counts.managers}</p>
+          <p className="portal-stat-label">Managers</p>
         </div>
-        <div className="rounded-2xl border border-violet-200 bg-violet-50/50 p-5 shadow-sm">
-          <p className="text-sm text-violet-700">Admins</p>
-          <p className="mt-1 text-2xl font-semibold text-violet-900">
-            {counts.admins}
-          </p>
+        <div className="portal-stat-tile portal-stat-tile--rose">
+          <p className="portal-stat-value">{counts.admins}</p>
+          <p className="portal-stat-label">Admins</p>
         </div>
       </div>
 
@@ -113,10 +107,10 @@ export function StaffDirectory({
             key={key}
             type="button"
             onClick={() => setFilter(key)}
-            className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
               filter === key
-                ? "bg-violet-600 text-white shadow-sm"
-                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
             }`}
           >
             {label}
@@ -125,14 +119,14 @@ export function StaffDirectory({
       </div>
 
       {message && (
-        <p className="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800">
+        <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {message}
         </p>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+      <div className="portal-card overflow-hidden">
+        <div className="w-full max-w-full overflow-x-hidden">
+          <table className="appraisal-data-table w-full text-left text-xs md:text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <th className="px-5 py-3">Name</th>
@@ -164,19 +158,31 @@ export function StaffDirectory({
 
                   return (
                     <tr key={member.id} className="hover:bg-slate-50/60">
-                      <td className="px-5 py-4 font-medium text-slate-900">
+                      <td
+                        data-label="Name"
+                        className="px-4 py-3 font-medium text-slate-900 md:px-5 md:py-4"
+                      >
                         {member.full_name}
                       </td>
-                      <td className="px-5 py-4 text-slate-600">
+                      <td
+                        data-label="Email"
+                        className="px-4 py-3 text-slate-600 md:px-5 md:py-4"
+                      >
                         {member.email}
                       </td>
-                      <td className="px-5 py-4 text-slate-600">
+                      <td
+                        data-label="Department"
+                        className="px-4 py-3 text-slate-600 md:px-5 md:py-4"
+                      >
                         {member.department ?? "—"}
                       </td>
-                      <td className="px-5 py-4 text-slate-600">
+                      <td
+                        data-label="Job title"
+                        className="px-4 py-3 text-slate-600 md:px-5 md:py-4"
+                      >
                         {member.job_title ?? "—"}
                       </td>
-                      <td className="px-5 py-4">
+                      <td data-label="Role" className="px-4 py-3 md:px-5 md:py-4">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
                             roleBadgeClass[member.role] ??
@@ -186,7 +192,10 @@ export function StaffDirectory({
                           {roleLabel(member.role)}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
+                      <td
+                        data-label="Actions"
+                        className="px-4 py-3 md:px-5 md:py-4"
+                      >
                         <div className="flex justify-end gap-2">
                           {isProtected ? (
                             <span className="text-xs text-slate-400">

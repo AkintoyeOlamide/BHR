@@ -15,13 +15,26 @@ export type AppraisalTab = {
   content: React.ReactNode;
 };
 
+const TAB_COLORS: Record<AppraisalTabId, string> = {
+  technical: "#7c3aed",
+  behavioural: "#0284c7",
+  overall: "#059669",
+  "dev-plan": "#d97706",
+};
+
+const TAB_SHORT_LABELS: Record<AppraisalTabId, string> = {
+  technical: "Technical",
+  behavioural: "Behavioural",
+  overall: "Overall",
+  "dev-plan": "Dev plan",
+};
+
 const TAB_META: Record<
   AppraisalTabId,
-  { step: number; accent: string; icon: React.ReactNode }
+  { step: number; icon: React.ReactNode }
 > = {
   technical: {
     step: 1,
-    accent: "violet",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
@@ -36,7 +49,6 @@ const TAB_META: Record<
   },
   behavioural: {
     step: 2,
-    accent: "sky",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
@@ -51,7 +63,6 @@ const TAB_META: Record<
   },
   overall: {
     step: 3,
-    accent: "emerald",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
@@ -66,7 +77,6 @@ const TAB_META: Record<
   },
   "dev-plan": {
     step: 4,
-    accent: "amber",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
@@ -94,9 +104,43 @@ export function AppraisalWorkspace({
   const active = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const activeMeta = TAB_META[activeTab];
   const activeIndex = tabs.findIndex((t) => t.id === activeTab);
+  const activeColor = TAB_COLORS[activeTab];
 
   return (
     <div className="appraisal-workspace">
+      {/* Mobile — scrollable step pills */}
+      <div className="mb-3 sm:hidden">
+        <div
+          className="appraisal-tab-scroll flex gap-1 overflow-x-auto rounded-xl bg-slate-100/80 p-1"
+          role="tablist"
+          aria-label="Appraisal sections"
+        >
+          {tabs.map((tab) => {
+            const isActive = tab.id === activeTab;
+            const color = TAB_COLORS[tab.id];
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                className={`shrink-0 rounded-lg px-3 py-2 text-xs font-medium transition ${
+                  isActive ? "text-white shadow-sm" : "text-slate-600"
+                }`}
+                style={isActive ? { backgroundColor: color } : undefined}
+              >
+                {TAB_SHORT_LABELS[tab.id]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">
+          Step {activeMeta.step} of {tabs.length} · {active.description}
+        </p>
+      </div>
+
       {/* Step progress — desktop */}
       <div className="mb-6 hidden sm:block">
         <div className="flex items-center">
@@ -115,11 +159,18 @@ export function AppraisalWorkspace({
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition ${
                       isActive
-                        ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
+                        ? "text-white"
                         : isPast
-                          ? "bg-violet-100 text-violet-700"
-                          : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+                          ? "text-slate-600"
+                          : "text-slate-400 group-hover:text-slate-600"
                     }`}
+                    style={
+                      isActive
+                        ? { backgroundColor: TAB_COLORS[tab.id] }
+                        : isPast
+                          ? { backgroundColor: "#e2e8f0" }
+                          : { backgroundColor: "#f1f5f9" }
+                    }
                   >
                     {isPast ? (
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -147,9 +198,11 @@ export function AppraisalWorkspace({
                 </button>
                 {index < tabs.length - 1 && (
                   <div
-                    className={`mx-2 h-0.5 flex-1 rounded ${
-                      index < activeIndex ? "bg-violet-300" : "bg-slate-200"
-                    }`}
+                    className="mx-2 h-0.5 flex-1 rounded"
+                    style={{
+                      backgroundColor:
+                        index < activeIndex ? TAB_COLORS[tab.id] : "#e2e8f0",
+                    }}
                   />
                 )}
               </div>
@@ -158,15 +211,16 @@ export function AppraisalWorkspace({
         </div>
       </div>
 
-      {/* Tab cards — mobile + quick switch */}
+      {/* Tab cards — tablet/desktop */}
       <div
-        className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4"
+        className="mb-6 hidden gap-2 sm:grid sm:grid-cols-4"
         role="tablist"
         aria-label="Appraisal sections"
       >
         {tabs.map((tab) => {
           const meta = TAB_META[tab.id];
           const isActive = tab.id === activeTab;
+          const color = TAB_COLORS[tab.id];
 
           return (
             <button
@@ -175,30 +229,23 @@ export function AppraisalWorkspace({
               role="tab"
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-start gap-2 rounded-2xl border p-3 text-left transition sm:p-4 ${
-                isActive
-                  ? "border-violet-200 bg-white shadow-md shadow-violet-600/8 ring-1 ring-violet-100"
-                  : "border-slate-200/80 bg-white/60 hover:border-slate-300 hover:bg-white hover:shadow-sm"
+              className={`flex flex-col items-start gap-2 rounded-lg p-4 text-left transition ${
+                isActive ? "text-white" : "bg-white text-slate-700 hover:bg-slate-50"
               }`}
+              style={isActive ? { backgroundColor: color } : undefined}
             >
               <span
-                className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                  isActive
-                    ? "bg-violet-100 text-violet-700"
-                    : "bg-slate-100 text-slate-500"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                  isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
                 }`}
               >
                 {meta.icon}
               </span>
               <span>
-                <span
-                  className={`block text-sm font-semibold ${
-                    isActive ? "text-slate-900" : "text-slate-700"
-                  }`}
-                >
+                <span className={`block text-sm font-semibold ${isActive ? "text-white" : ""}`}>
                   {tab.label}
                 </span>
-                <span className="mt-0.5 hidden text-xs text-slate-500 sm:block">
+                <span className={`mt-0.5 text-xs ${isActive ? "text-white/80" : "text-slate-500"}`}>
                   Step {meta.step}
                 </span>
               </span>
@@ -207,13 +254,13 @@ export function AppraisalWorkspace({
         })}
       </div>
 
-      {/* Active section intro */}
-      <div className="mb-4 flex items-start justify-between gap-4">
+      {/* Active section intro — desktop only */}
+      <div className="mb-4 hidden items-start justify-between gap-4 sm:flex">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
             Step {activeMeta.step} of {tabs.length}
           </p>
-          <h3 className="mt-1 text-lg font-semibold text-slate-900">
+          <h3 className="mt-1 text-base font-semibold text-slate-900 md:text-lg">
             {active.label}
           </h3>
           <p className="mt-1 text-sm text-slate-600">{active.description}</p>
@@ -222,7 +269,8 @@ export function AppraisalWorkspace({
           <button
             type="button"
             onClick={() => setActiveTab(tabs[activeIndex + 1].id)}
-            className="hidden shrink-0 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-violet-200 hover:text-violet-700 sm:inline-flex"
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:opacity-90"
+            style={{ backgroundColor: activeColor }}
           >
             Next
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -239,11 +287,7 @@ export function AppraisalWorkspace({
       </div>
 
       {/* Content */}
-      <div
-        role="tabpanel"
-        className="animate-in fade-in duration-200"
-        key={activeTab}
-      >
+      <div role="tabpanel" className="animate-in fade-in duration-200" key={activeTab}>
         {active.content}
       </div>
     </div>

@@ -25,6 +25,7 @@ import { getAppraisalBehaviouralItems } from "@/lib/behavioural/server";
 import { getAppraisalKpis } from "@/lib/kpi/server";
 
 import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
+import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 
 import { BEHAVIOURAL_SECTION_WEIGHT_DEFAULT } from "@/lib/behavioural/calculations";
 
@@ -88,53 +89,71 @@ export default async function EmployeeAppraisalPage({ params }: PageProps) {
 
 
 
+  const statusLabel =
+    APPRAISAL_STATUS_LABELS[appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS];
+
   return (
-
     <div className="portal-light portal-page min-h-screen text-slate-900">
-
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-
-          <Logo size="sm" />
-
-          <SignOutButton />
-
+      <header className="portal-header sticky top-0 z-40">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          {/* Mobile */}
+          <div className="sm:hidden">
+            <div className="flex h-11 items-center justify-between">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                  <path
+                    d="M10 3L5 8l5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Dashboard
+              </Link>
+              <SignOutButton />
+            </div>
+            <div className="border-t border-slate-200/70 pb-3 pt-2.5">
+              <h1 className="text-lg font-semibold leading-snug tracking-tight text-slate-900">
+                {cycle.title ?? "Your performance review"}
+              </h1>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className={appraisalStatusBadgeClass(appraisal.status)}>
+                  {statusLabel}
+                </span>
+              </div>
+            </div>
+          </div>
+          {/* Desktop */}
+          <div className="hidden h-16 items-center justify-between sm:flex">
+            <Logo size="sm" theme="light" />
+            <SignOutButton />
+          </div>
         </div>
-
       </header>
 
+      <main className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8">
+        <div className="mb-3 hidden sm:block sm:mb-6">
+          <Link href="/dashboard" className="portal-link text-sm">
+            ← Back to dashboard
+          </Link>
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
+            {cycle.title ?? "Your performance review"}
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={appraisalStatusBadgeClass(appraisal.status)}>
+              {statusLabel}
+            </span>
+            <span className="text-sm text-slate-500">
+              Use the tabs to complete each section of your review.
+            </span>
+          </div>
+        </div>
 
-
-      <main className="mx-auto max-w-6xl px-6 py-10">
-
-        <Link href="/dashboard" className="text-sm text-teal-600 hover:text-teal-500">
-
-          ← Back to dashboard
-
-        </Link>
-
-        <h1 className="mt-4 text-2xl font-semibold text-slate-900">
-
-          {cycle.title ?? "Your performance review"}
-
-        </h1>
-
-        <p className="mt-1 text-sm text-slate-600">
-
-          Status:{" "}
-
-          {APPRAISAL_STATUS_LABELS[appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS]}
-
-          {" · "}
-
-          Use the tabs to complete each section of your review.
-
-        </p>
-
-
-
-        <div className="mt-8">
+        <div className="sm:mt-2">
 
           <AppraisalWorkspace
 

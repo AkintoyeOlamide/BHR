@@ -28,6 +28,7 @@ import { getAppraisalBehaviouralItems } from "@/lib/behavioural/server";
 import { getAppraisalKpis } from "@/lib/kpi/server";
 
 import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
+import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 
 import { BEHAVIOURAL_SECTION_WEIGHT_DEFAULT } from "@/lib/behavioural/calculations";
 
@@ -104,24 +105,21 @@ export default async function ManagerAppraisalDetailPage({ params }: PageProps) 
 
   const appraisalsHref = fullHr ? "/admin/appraisals" : "/manager/appraisals";
 
+  const statusLabel =
+    APPRAISAL_STATUS_LABELS[appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS];
+
   return (
     <PortalShell
-
+      compact
+      backHref={appraisalsHref}
+      backLabel="Appraisals"
       title={employee.full_name ?? "Employee appraisal"}
-
-      subtitle={`${cycle.title ?? "Review"} · ${APPRAISAL_STATUS_LABELS[appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS]}`}
-
+      subtitle={cycle.title ?? "Review"}
+      statusLabel={statusLabel}
+      statusClassName={appraisalStatusBadgeClass(appraisal.status)}
       role={session.profile.role}
-
-      nav={[
-
-        { label: "← Appraisals", href: appraisalsHref },
-        ...getPortalNav(session.profile.role, session.profile.email),
-
-      ]}
-
+      nav={getPortalNav(session.profile.role, session.profile.email)}
     >
-
       <AppraisalWorkspace
 
         tabs={[

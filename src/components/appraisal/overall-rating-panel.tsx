@@ -100,21 +100,21 @@ export function OverallRatingPanel({
       />
 
       {(!isEmployee || employeeCanViewResults) && (
-        <div className="border-b border-slate-100 px-6 py-8 sm:px-8">
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-white px-6 py-8 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
+        <div className="border-b border-slate-100 px-0 py-6 md:px-6 md:py-8 lg:px-8">
+          <div className="flex flex-col items-center justify-center px-0 py-6 text-center md:rounded-2xl md:border md:border-slate-200 md:px-6 md:py-8">
+            <p className="text-[0.625rem] font-semibold uppercase tracking-wider text-slate-600 md:text-xs">
               Total score
             </p>
-            <p className="mt-2 text-5xl font-bold tabular-nums tracking-tight text-slate-900">
+            <p className="appraisal-score-mobile mt-2 text-3xl font-bold tabular-nums tracking-tight text-slate-900 md:text-5xl">
               {formatScore(displayTotal)}
             </p>
             {!isTemplate && ratingLabel && (
-              <p className="mt-2 rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-800">
+              <p className="mt-2 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-800 md:text-sm">
                 {ratingLabel}
               </p>
             )}
             {isTemplate && (
-              <p className="mt-3 max-w-md text-sm text-slate-500">
+              <p className="mt-3 max-w-md text-xs text-slate-500 md:text-sm">
                 Scores populate automatically when managers rate assigned
                 appraisals ({kpiSectionWeight}% technical +{" "}
                 {behaviouralSectionWeight}% behavioural).
@@ -125,12 +125,12 @@ export function OverallRatingPanel({
       )}
 
       {isEmployee && !employeeCanViewResults && (
-        <div className="border-b border-slate-100 px-6 py-8 sm:px-8">
-          <div className="rounded-2xl border border-amber-100 bg-amber-50 px-6 py-8 text-center">
-            <p className="text-sm font-medium text-amber-900">
+        <div className="border-b border-slate-100 px-0 py-6 md:px-6 md:py-8 lg:px-8">
+          <div className="px-0 py-6 text-center md:rounded-2xl md:border md:border-slate-200 md:px-6">
+            <p className="text-xs font-medium text-slate-900 md:text-sm">
               Rating not available yet
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-amber-800">
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 md:text-sm">
               Complete your sections in the other tabs. Your manager will rate
               you and your final score will appear here when the review is
               finished.
@@ -141,41 +141,65 @@ export function OverallRatingPanel({
 
       {(!isEmployee || employeeCanViewResults) && (
       <AppraisalTableWrap>
-        <table className="w-full min-w-[600px] border-collapse text-sm">
+        <table className="appraisal-data-table appraisal-summary-table w-full border-collapse text-xs md:text-sm">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="px-6 py-3 text-left sm:px-8">Section</th>
-              <th className="px-4 py-3 text-center">Weight</th>
-              <th className="px-4 py-3 text-center">Rating</th>
-              <th className="px-6 py-3 text-center sm:px-8">Weighted</th>
+              <th className="px-4 py-3 text-left md:px-6 lg:px-8">Section</th>
+              <th className="px-3 py-3 text-center md:px-4">Weight</th>
+              <th className="px-3 py-3 text-center md:px-4">Rating</th>
+              <th className="px-4 py-3 text-center md:px-6 lg:px-8">Weighted</th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-slate-100">
-              <td className="px-6 py-4 font-medium text-slate-800 sm:px-8">
+              <td
+                data-label="Technical (KPI)"
+                className="appraisal-cell-index px-4 py-3 font-medium text-slate-800 md:px-6 md:py-4 lg:px-8"
+              >
                 Technical (KPI)
               </td>
-              <td className="px-4 py-4 text-center tabular-nums text-slate-600">
+              <td
+                data-label="Weight"
+                className="px-3 py-3 text-center tabular-nums text-slate-600 md:px-4 md:py-4"
+              >
                 {kpiSectionWeight}%
               </td>
-              <td className="px-4 py-4 text-center tabular-nums font-medium">
+              <td
+                data-label="Rating"
+                className="px-3 py-3 text-center tabular-nums font-medium md:px-4 md:py-4"
+              >
                 {formatScore(kpiOverall)}
               </td>
-              <td className="px-6 py-4 text-center text-base font-semibold tabular-nums text-slate-900 sm:px-8">
+              <td
+                data-label="Weighted"
+                className="px-4 py-3 text-center text-sm font-semibold tabular-nums text-slate-900 md:px-6 md:py-4 md:text-base lg:px-8"
+              >
                 {formatScore(kpiSectionActual)}
               </td>
             </tr>
             <tr className="border-b border-slate-100">
-              <td className="px-6 py-4 font-medium text-slate-800 sm:px-8">
+              <td
+                data-label="Behavioural"
+                className="appraisal-cell-index px-4 py-3 font-medium text-slate-800 md:px-6 md:py-4 lg:px-8"
+              >
                 Behavioural
               </td>
-              <td className="px-4 py-4 text-center tabular-nums text-slate-600">
+              <td
+                data-label="Weight"
+                className="px-3 py-3 text-center tabular-nums text-slate-600 md:px-4 md:py-4"
+              >
                 {behaviouralSectionWeight}%
               </td>
-              <td className="px-4 py-4 text-center tabular-nums font-medium">
+              <td
+                data-label="Rating"
+                className="px-3 py-3 text-center tabular-nums font-medium md:px-4 md:py-4"
+              >
                 {formatScore(behaviouralOverall)}
               </td>
-              <td className="px-6 py-4 text-center text-base font-semibold tabular-nums text-slate-900 sm:px-8">
+              <td
+                data-label="Weighted"
+                className="px-4 py-3 text-center text-sm font-semibold tabular-nums text-slate-900 md:px-6 md:py-4 md:text-base lg:px-8"
+              >
                 {formatScore(behaviouralSectionActual)}
               </td>
             </tr>
@@ -188,16 +212,16 @@ export function OverallRatingPanel({
         <form
           id="overall-rating-form"
           onSubmit={handleSave}
-          className="space-y-4 border-t border-slate-100 px-6 py-6 sm:px-8"
+          className="space-y-4 border-t border-slate-100 px-0 py-5 md:px-6 md:py-6 lg:px-8"
         >
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-xs font-medium text-slate-700 md:text-sm">
               Performance rating band
             </span>
             <select
               name="rating_label"
               defaultValue={ratingLabel ?? ""}
-              className="h-11 w-full max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+              className="h-10 w-full max-w-md rounded-xl border border-slate-200 px-3 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 md:h-11 md:px-4 md:text-sm"
             >
               <option value="">Select rating</option>
               {RATING_OPTIONS.map((option) => (
@@ -208,14 +232,14 @@ export function OverallRatingPanel({
             </select>
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-xs font-medium text-slate-700 md:text-sm">
               Manager summary
             </span>
             <textarea
               name="manager_comments"
               rows={4}
               defaultValue={managerComments ?? ""}
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 md:px-4 md:py-3 md:text-sm"
             />
           </label>
           {saved && (
@@ -225,7 +249,7 @@ export function OverallRatingPanel({
       )}
 
       {!isTemplate && mode === "employee" && employeeCanViewResults && (
-        <div className="border-t border-slate-100 px-6 py-6 text-sm text-slate-600 sm:px-8">
+        <div className="border-t border-slate-100 px-0 py-5 text-xs text-slate-600 md:px-6 md:py-6 md:text-sm lg:px-8">
           <p>
             Your rating:{" "}
             <span className="font-semibold text-slate-900">
@@ -233,7 +257,7 @@ export function OverallRatingPanel({
             </span>
           </p>
           {managerComments && (
-            <p className="mt-3 rounded-xl bg-slate-50 p-4 leading-relaxed text-slate-700">
+            <p className="mt-3 rounded-xl border border-slate-200 p-4 leading-relaxed text-slate-700">
               {managerComments}
             </p>
           )}

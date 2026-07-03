@@ -39,7 +39,7 @@ function Field({
   return (
     <label className="block space-y-2">
       <div>
-        <span className="text-sm font-medium text-slate-800">{label}</span>
+        <span className="text-xs font-medium text-slate-800 md:text-sm">{label}</span>
         {hint && (
           <p className="mt-0.5 text-xs text-slate-500">{hint}</p>
         )}
@@ -49,7 +49,7 @@ function Field({
         rows={rows}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-900 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+        className="w-full rounded-lg bg-white px-3 py-2.5 text-xs leading-relaxed text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-amber-200 md:px-4 md:py-3 md:text-sm"
       />
     </label>
   );
@@ -102,8 +102,9 @@ export function DevPlanPanel({
   }
 
   return (
-    <AppraisalPanel>
+    <AppraisalPanel accent="amber">
       <AppraisalPanelHeader
+        accent="amber"
         title="Development plan"
         subtitle={
           isEmployee
@@ -112,7 +113,7 @@ export function DevPlanPanel({
         }
       />
 
-      <div className="space-y-6 px-6 py-6 sm:px-8">
+      <div className="mx-4 space-y-5 rounded-lg bg-amber-50 p-4 md:mx-6 md:space-y-6 md:p-5 lg:mx-8">
         <Field
           label="Goals for this period"
           hint="What should be achieved before the next review?"

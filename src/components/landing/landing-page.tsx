@@ -6,15 +6,18 @@ import { LandingHowItWorks } from "./landing-how-it-works";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#06060f]">
+    <div className="min-h-screen text-slate-900">
       <LandingHero />
-      <LandingHowItWorks />
+      <div className="hidden lg:block">
+        <LandingHowItWorks />
+      </div>
 
-      <footer className="border-t border-white/5 bg-[#06060f] py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 sm:flex-row">
+      <footer className="hidden bg-[#0b1a3d] py-6 lg:block">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-4 sm:flex-row sm:px-8">
           <Logo size="sm" theme="dark" />
-          <p className="text-sm text-white/30">
-            Need help? Contact your HR team.
+          <p className="text-center text-xs text-blue-100/70 sm:text-sm">
+            © {new Date().getFullYear()} Bitachon HR · Need help? Contact your HR
+            team.
           </p>
         </div>
       </footer>

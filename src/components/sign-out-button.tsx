@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignOutButton() {
+export function SignOutButton({ onDark = false }: { onDark?: boolean }) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -15,7 +15,11 @@ export function SignOutButton() {
   }
 
   return (
-    <Button variant="secondary" onClick={handleSignOut}>
+    <Button
+      variant={onDark ? "onDark" : "ghost"}
+      onClick={handleSignOut}
+      className="!h-9 !px-3.5 !text-xs sm:!text-sm"
+    >
       Sign out
     </Button>
   );

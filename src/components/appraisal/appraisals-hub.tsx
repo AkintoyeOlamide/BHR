@@ -9,6 +9,7 @@ import { isFullHrUser } from "@/lib/auth/hr-access";
 import { getAppraisalDetailPath } from "@/lib/navigation/portal-nav";
 import { getKpiTemplate } from "@/lib/kpi/template";
 import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
+import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 
 type AppraisalsHubProps = {
   role: string;
@@ -40,7 +41,7 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
 
   if (fullHr) {
     return (
-      <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+      <section className="portal-surface">
         <AppraisalWorkspace
           tabs={[
             {
@@ -115,7 +116,7 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
   }
 
   return (
-    <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+    <section className="portal-surface">
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-slate-900">
           Your assigned reviews
@@ -128,7 +129,7 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
 
       <div className="space-y-3">
         {(appraisals ?? []).length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
+          <p className="portal-surface py-6 text-sm text-stone-500">
             No reviews assigned to you yet. HR will assign appraisals here.
           </p>
         ) : (
@@ -141,7 +142,7 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
               <Link
                 key={appraisal.id}
                 href={detailHref}
-                className="group block rounded-2xl border border-slate-200 bg-slate-50/50 p-5 transition hover:border-violet-200 hover:bg-white hover:shadow-md"
+                className="portal-list-item group !block !items-stretch"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -155,7 +156,7 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
                         : ""}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                  <span className={appraisalStatusBadgeClass(appraisal.status)}>
                     {
                       APPRAISAL_STATUS_LABELS[
                         appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS
@@ -164,13 +165,13 @@ export async function AppraisalsHub({ role, userId, userEmail }: AppraisalsHubPr
                   </span>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-stone-600">
                     Overall score:{" "}
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-stone-900">
                       {kpiScore != null ? Number(kpiScore).toFixed(2) : "—"}
                     </span>
                   </p>
-                  <span className="text-sm font-medium text-violet-600">
+                  <span className="portal-link">
                     Complete review →
                   </span>
                 </div>

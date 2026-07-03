@@ -171,8 +171,9 @@ export function BehaviouralAssessmentForm({
   }
 
   return (
-    <AppraisalPanel>
+    <AppraisalPanel accent="sky">
       <AppraisalPanelHeader
+        accent="sky"
         badge={`${formSectionWeight}% of total`}
         title="Behavioural skills & competence"
         subtitle={
@@ -195,8 +196,8 @@ export function BehaviouralAssessmentForm({
           ]}
         />
       ) : (
-        <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
-          <p className="text-sm text-slate-600">
+        <div className="border-b border-slate-100 px-0 py-3 md:px-6 lg:px-8">
+          <p className="text-xs text-slate-600 md:text-sm">
             Share real examples for each behaviour below. Ratings and scores are
             completed by your manager.
           </p>
@@ -217,8 +218,8 @@ export function BehaviouralAssessmentForm({
         </AppraisalToolbar>
       )}
 
-      <AppraisalTableWrap>
-        <table className="appraisal-data-table w-full border-collapse text-sm">
+      <AppraisalTableWrap title="Behavioural competencies" accent="sky">
+        <table className="appraisal-data-table w-full border-collapse text-xs md:text-sm">
           <colgroup>
             <col className="w-12" />
             <col className="w-[22%]" />
@@ -260,10 +261,13 @@ export function BehaviouralAssessmentForm({
               );
               return (
                 <tr key={item.id ?? index} className="border-b border-slate-100">
-                  <td className="px-3 py-2 text-center text-xs font-medium text-slate-400">
+                  <td
+                    data-label={`Item ${index + 1}`}
+                    className="appraisal-cell-index px-3 py-2 text-center text-xs font-medium text-slate-400"
+                  >
                     {index + 1}
                   </td>
-                  <td className="p-2">
+                  <td data-label="Key measurement" className="p-2">
                     <input
                       type="text"
                       value={item.key_measurement}
@@ -275,7 +279,7 @@ export function BehaviouralAssessmentForm({
                     />
                   </td>
                   {!isEmployee && (
-                    <td className="p-2">
+                    <td data-label="Weight" className="p-2">
                       <div className="flex items-center gap-1">
                         <input
                           type="number"
@@ -296,7 +300,7 @@ export function BehaviouralAssessmentForm({
                     </td>
                   )}
                   {!isEmployee && (
-                    <td className="p-2">
+                    <td data-label="Rating" className="p-2">
                       <select
                         value={item.rating ?? ""}
                         onChange={(e) =>
@@ -320,7 +324,7 @@ export function BehaviouralAssessmentForm({
                       </select>
                     </td>
                   )}
-                  <td className="p-2">
+                  <td data-label="Comments" className="p-2">
                     <textarea
                       value={item.comments}
                       onChange={(e) =>
@@ -332,12 +336,15 @@ export function BehaviouralAssessmentForm({
                     />
                   </td>
                   {!isEmployee && (
-                    <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
+                    <td
+                      data-label="Score"
+                      className="appraisal-cell-score px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800"
+                    >
                       {rowScore.toFixed(2)}
                     </td>
                   )}
                   {isManager && (
-                    <td className="px-1 py-2 text-center">
+                    <td className="appraisal-cell-actions px-1 py-2 text-center">
                       <RowRemoveButton onClick={() => removeRow(index)} />
                     </td>
                   )}
@@ -352,6 +359,7 @@ export function BehaviouralAssessmentForm({
                   Total weighting
                 </td>
                 <td
+                  data-label="Total weight"
                   className={`px-2 py-3 text-center tabular-nums ${
                     weightsOk ? "text-slate-900" : "text-red-600"
                   }`}
@@ -359,7 +367,10 @@ export function BehaviouralAssessmentForm({
                   {totalWeight.toFixed(2)}%
                 </td>
                 <td colSpan={3} />
-                <td className="px-2 py-3 text-center tabular-nums text-violet-700">
+                <td
+                  data-label="Section score"
+                  className="px-2 py-3 text-center tabular-nums text-violet-700"
+                >
                   {sectionActual.toFixed(2)}
                 </td>
                 <td />
@@ -369,7 +380,7 @@ export function BehaviouralAssessmentForm({
         </table>
       </AppraisalTableWrap>
 
-      <div className="space-y-3 px-6 pt-4 sm:px-8">
+      <div className="space-y-3 px-0 pt-4 md:px-6 lg:px-8">
         {!weightsOk && isManager && (
           <AppraisalAlert variant="error">
             Total weight cannot exceed 100%. Current total:{" "}

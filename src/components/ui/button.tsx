@@ -1,16 +1,15 @@
 import { ButtonHTMLAttributes } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "onDark";
   fullWidth?: boolean;
 };
 
 const variants = {
-  primary:
-    "bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-600/20",
-  secondary:
-    "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+  primary: "bg-indigo-600 text-white hover:bg-indigo-700",
+  secondary: "bg-indigo-100 text-indigo-800 hover:bg-indigo-200",
+  ghost: "text-slate-600 hover:text-indigo-700",
+  onDark: "text-slate-500 hover:text-indigo-700",
 };
 
 export function Button({
@@ -22,7 +21,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${fullWidth ? "w-full" : ""} ${className}`}
+      className={`inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:px-5 ${variants[variant]} ${fullWidth ? "w-full" : ""} ${className}`}
       {...props}
     >
       {children}

@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BHR | Your work review portal",
-  description: "Sign in, complete your review, and track your progress in one simple place.",
+  title: "Bitachon HR | Your work review portal",
+  description:
+    "Sign in to Bitachon HR, complete your review, and track your progress in one simple place.",
 };
 
 export default function RootLayout({
@@ -25,9 +26,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full overflow-x-hidden">{children}</body>
     </html>
   );
 }

@@ -18,7 +18,7 @@ type AssignOptions = {
 };
 
 const selectClass =
-  "h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100";
+  "h-11 w-full rounded-xl border border-slate-300 px-4 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200";
 
 export function AssignAppraisalDialog({
   onSuccess,
@@ -143,14 +143,14 @@ export function AssignAppraisalDialog({
         <button
           type="button"
           aria-label="Close"
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"
+          className="absolute inset-0 bg-black/20"
           onClick={closeDialog}
         />
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="assign-dialog-title"
-          className="portal-light relative flex max-h-[min(92vh,640px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          className="portal-light relative flex max-h-[min(92vh,640px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200"
         >
           <div className="shrink-0 border-b border-slate-100 px-6 py-5">
             <h3
@@ -173,13 +173,13 @@ export function AssignAppraisalDialog({
             ) : (
               <form id="assign-appraisal-form" onSubmit={handleSubmit} className="space-y-4">
                 {options?.setupHint && (
-                  <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  <p className="rounded-xl border border-amber-200 px-4 py-3 text-sm text-amber-900">
                     {options.setupHint}
                   </p>
                 )}
 
                 {message && !options && (
-                  <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  <p className="rounded-xl border border-red-200 px-4 py-3 text-sm text-red-800">
                     {message}
                   </p>
                 )}
@@ -259,7 +259,7 @@ export function AssignAppraisalDialog({
                 <Input label="Review period" name="review_period" />
 
                 {message && options && (
-                  <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  <p className="rounded-xl border border-red-200 px-4 py-3 text-sm text-red-800">
                     {message}
                   </p>
                 )}
@@ -267,7 +267,7 @@ export function AssignAppraisalDialog({
             )}
           </div>
 
-          <div className="flex shrink-0 justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-slate-100 px-6 py-4">
             <Button type="button" variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
@@ -289,7 +289,7 @@ export function AssignAppraisalDialog({
         type="button"
         variant="secondary"
         onClick={() => setOpen(true)}
-        className="min-w-[140px] rounded-xl border-violet-200 font-semibold text-violet-700 shadow-sm hover:bg-violet-50"
+        className="min-w-[140px] rounded-xl border-slate-200 font-semibold text-slate-700"
       >
         Assign
       </Button>

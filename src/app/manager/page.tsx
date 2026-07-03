@@ -6,6 +6,7 @@ import { isFullHrSession } from "@/lib/auth/hr-access";
 import { canAccessManager } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
+import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 import { getPortalNav } from "@/lib/navigation/portal-nav";
 
 export default async function ManagerPage() {
@@ -41,30 +42,27 @@ export default async function ManagerPage() {
       role={session.profile.role}
       nav={getPortalNav(session.profile.role, session.profile.email)}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-          <p className="text-sm text-amber-800">Open appraisals</p>
-          <p className="mt-2 text-3xl font-semibold text-amber-900">{pending ?? 0}</p>
+      <div className="portal-stat-grid sm:max-w-lg">
+        <div className="portal-stat-tile portal-stat-tile--amber">
+          <p className="portal-stat-value">{pending ?? 0}</p>
+          <p className="portal-stat-label">Open appraisals</p>
         </div>
-        <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6">
-          <p className="text-sm text-teal-800">Completed</p>
-          <p className="mt-2 text-3xl font-semibold text-teal-900">{completed ?? 0}</p>
+        <div className="portal-stat-tile portal-stat-tile--emerald">
+          <p className="portal-stat-value">{completed ?? 0}</p>
+          <p className="portal-stat-label">Completed</p>
         </div>
       </div>
 
-      <section className="mt-8">
+      <section className="mt-12">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-slate-900">Team appraisals</h2>
-          <Link
-            href="/manager/appraisals"
-            className="text-sm font-medium text-teal-600 hover:text-teal-500"
-          >
+          <h2 className="portal-section-title">Team appraisals</h2>
+          <Link href="/manager/appraisals" className="portal-link">
             Manage all →
           </Link>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {(appraisals ?? []).length === 0 ? (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-stone-500">
               No appraisals yet. Go to Appraisals to assign the first one.
             </p>
           ) : (
@@ -72,17 +70,17 @@ export default async function ManagerPage() {
               <Link
                 key={appraisal.id}
                 href={`/manager/appraisals/${appraisal.id}`}
-                className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4"
+                className="portal-list-item"
               >
                 <div>
-                  <p className="font-medium text-slate-900">
+                  <p className="font-medium text-stone-900">
                     {(appraisal.employee as { full_name?: string })?.full_name}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-stone-500">
                     {(appraisal.cycle as { title?: string })?.title}
                   </p>
                 </div>
-                <span className="text-sm text-slate-500">
+                <span className={appraisalStatusBadgeClass(appraisal.status)}>
                   {APPRAISAL_STATUS_LABELS[appraisal.status as keyof typeof APPRAISAL_STATUS_LABELS]}
                 </span>
               </Link>

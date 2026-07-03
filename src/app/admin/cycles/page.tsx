@@ -29,19 +29,16 @@ export default async function AdminCyclesPage() {
     >
       <div className="grid gap-8 lg:grid-cols-2">
         <CreateCycleForm />
-        <div className="space-y-3">
-          <h3 className="font-semibold text-slate-900">All cycles</h3>
+        <div className="space-y-4">
+          <h3 className="portal-section-title">All cycles</h3>
           {(cycles ?? []).length === 0 ? (
-            <p className="text-sm text-slate-600">No cycles yet.</p>
+            <p className="text-sm text-stone-500">No cycles yet.</p>
           ) : (
             cycles?.map((cycle) => (
-              <article
-                key={cycle.id}
-                className="rounded-2xl border border-slate-200 bg-white p-5"
-              >
+              <article key={cycle.id} className="portal-surface">
                 <div className="flex items-start justify-between gap-3">
-                  <h4 className="font-medium text-slate-900">{cycle.title}</h4>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                  <h4 className="font-medium text-stone-900">{cycle.title}</h4>
+                  <span className="portal-badge portal-badge--violet">
                     {
                       CYCLE_STATUS_LABELS[
                         cycle.status as keyof typeof CYCLE_STATUS_LABELS
@@ -49,8 +46,8 @@ export default async function AdminCyclesPage() {
                     }
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{cycle.description}</p>
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-2 text-sm text-stone-600">{cycle.description}</p>
+                <p className="mt-2 text-xs text-stone-400">
                   {cycle.start_date} → {cycle.end_date}
                 </p>
               </article>

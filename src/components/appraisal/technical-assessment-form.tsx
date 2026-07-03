@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
   AppraisalAlert,
   AppraisalMetricBar,
+  AppraisalFormSection,
   AppraisalPanel,
   AppraisalPanelHeader,
   AppraisalStickyFooter,
@@ -184,55 +185,67 @@ export function TechnicalAssessmentForm({
   }
 
   return (
-    <AppraisalPanel>
+    <AppraisalPanel accent="violet">
       <AppraisalPanelHeader
+        accent="violet"
         badge={`${formHeader.kpi_section_weight}% of total`}
         title="Technical KPI assessment"
         subtitle="Define key performance indicators, assign weights, and rate each task. Weights across all rows cannot exceed 100%."
       />
 
-      <div className="grid gap-4 border-b border-slate-100 px-6 py-5 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
+      <AppraisalFormSection title="Employee details" accent="violet">
         <Input
+          variant="form"
           label="Appraisee's name"
           value={formHeader.appraisee_name}
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, appraisee_name: e.target.value }))
           }
           readOnly={!isManager}
+          placeholder="Full name"
         />
         <Input
+          variant="form"
           label="Appraiser's name"
           value={formHeader.appraiser_name}
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, appraiser_name: e.target.value }))
           }
           readOnly={!isManager}
+          placeholder="Manager or reviewer"
         />
         <Input
+          variant="form"
           label="Department"
           value={formHeader.department}
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, department: e.target.value }))
           }
           readOnly={!isManager}
+          placeholder="e.g. Comms & IT"
         />
         <Input
+          variant="form"
           label="Designation"
           value={formHeader.job_title}
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, job_title: e.target.value }))
           }
           readOnly={!isManager}
+          placeholder="Job title"
         />
         <Input
+          variant="form"
           label="Appraisal period"
           value={formHeader.review_period}
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, review_period: e.target.value }))
           }
           readOnly={!isManager}
+          placeholder="e.g. Jan – Dec 2026"
         />
         <Input
+          variant="form"
           label="Time in present position"
           value={formHeader.time_in_present_position}
           onChange={(e) =>
@@ -242,8 +255,9 @@ export function TechnicalAssessmentForm({
             }))
           }
           readOnly={!isManager}
+          placeholder="e.g. 2 years"
         />
-      </div>
+      </AppraisalFormSection>
 
       {isManager ? (
         <AppraisalMetricBar
@@ -258,7 +272,7 @@ export function TechnicalAssessmentForm({
           ]}
         />
       ) : (
-        <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
+        <div className="mx-3 mb-2 rounded-lg bg-slate-50 px-3 py-2.5 sm:mx-4 sm:px-4 sm:py-3 md:mx-6 lg:mx-8">
           <p className="text-sm text-slate-600">
             Review each KPI below and describe your results in the measurement
             area. Your manager will complete the ratings separately.
@@ -280,8 +294,8 @@ export function TechnicalAssessmentForm({
         </AppraisalToolbar>
       )}
 
-      <AppraisalTableWrap>
-        <table className="appraisal-data-table w-full border-collapse text-sm">
+      <AppraisalTableWrap title="KPI rows" accent="violet">
+        <table className="appraisal-data-table w-full border-collapse text-xs md:text-sm">
           <colgroup>
             <col className="w-12" />
             <col className="w-[28%]" />
@@ -313,10 +327,13 @@ export function TechnicalAssessmentForm({
               const rowScore = calculateKpiRowScore(kpi.weight, kpi.rating);
               return (
                 <tr key={kpi.id ?? index} className="border-b border-slate-100">
-                  <td className="px-3 py-2 text-center text-xs font-medium text-slate-400">
+                  <td
+                    data-label={`KPI ${index + 1}`}
+                    className="appraisal-cell-index px-3 py-2 text-center text-xs font-medium text-slate-400"
+                  >
                     {index + 1}
                   </td>
-                  <td className="p-2">
+                  <td data-label="Key performance indicator" className="p-2">
                     <input
                       type="text"
                       value={kpi.task}
@@ -326,7 +343,7 @@ export function TechnicalAssessmentForm({
                     />
                   </td>
                   {!isEmployee && (
-                    <td className="p-2">
+                    <td data-label="Weight" className="p-2">
                       <div className="flex items-center gap-1">
                         <input
                           type="number"
@@ -347,7 +364,7 @@ export function TechnicalAssessmentForm({
                     </td>
                   )}
                   {!isEmployee && (
-                    <td className="p-2">
+                    <td data-label="Rating" className="p-2">
                       <select
                         value={kpi.rating ?? ""}
                         onChange={(e) =>
@@ -368,7 +385,7 @@ export function TechnicalAssessmentForm({
                       </select>
                     </td>
                   )}
-                  <td className="p-2">
+                  <td data-label="Measurement area" className="p-2">
                     <input
                       type="text"
                       value={kpi.measurement_area}
@@ -380,12 +397,15 @@ export function TechnicalAssessmentForm({
                     />
                   </td>
                   {!isEmployee && (
-                    <td className="px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800">
+                    <td
+                      data-label="Score"
+                      className="appraisal-cell-score px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800"
+                    >
                       {rowScore.toFixed(2)}
                     </td>
                   )}
                   {isManager && (
-                    <td className="px-1 py-2 text-center">
+                    <td className="appraisal-cell-actions px-1 py-2 text-center">
                       <RowRemoveButton onClick={() => removeKpiRow(index)} />
                     </td>
                   )}
@@ -400,6 +420,7 @@ export function TechnicalAssessmentForm({
                   Total weighting
                 </td>
                 <td
+                  data-label="Total weight"
                   className={`px-2 py-3 text-center tabular-nums ${
                     weightsOk ? "text-slate-900" : "text-red-600"
                   }`}
@@ -407,7 +428,10 @@ export function TechnicalAssessmentForm({
                   {totalWeight.toFixed(2)}%
                 </td>
                 <td colSpan={3} />
-                <td className="px-2 py-3 text-center tabular-nums text-slate-900">
+                <td
+                  data-label="Overall score"
+                  className="px-2 py-3 text-center tabular-nums text-slate-900"
+                >
                   {overallRating.toFixed(2)}
                 </td>
                 <td />
@@ -417,7 +441,7 @@ export function TechnicalAssessmentForm({
         </table>
       </AppraisalTableWrap>
 
-      <div className="space-y-3 px-6 pt-4 sm:px-8">
+      <div className="space-y-3 px-3 pt-3 md:px-6 md:pt-4 lg:px-8">
         {!weightsOk && isManager && (
           <AppraisalAlert variant="error">
             Total weight cannot exceed 100%. Current total:{" "}
