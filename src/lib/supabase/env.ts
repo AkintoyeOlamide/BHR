@@ -1,17 +1,22 @@
 function normalizeEnvValue(value: string | undefined) {
   if (!value) return null;
 
-  const trimmed = value.trim();
+  let trimmed = value
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'");
+
   if (!trimmed) return null;
 
   if (
     (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
     (trimmed.startsWith("'") && trimmed.endsWith("'"))
   ) {
-    return trimmed.slice(1, -1).trim() || null;
+    trimmed = trimmed.slice(1, -1).trim();
   }
 
-  return trimmed;
+  return trimmed || null;
 }
 
 function normalizeSupabaseUrl(value: string | undefined) {
@@ -43,6 +48,12 @@ export type SupabaseEnvStatus = {
   url: { set: boolean; valid: boolean };
   anonKey: { set: boolean };
   secretKey: { set: boolean };
+  urlDebug?: {
+    length: number;
+    startsWithHttp: boolean;
+    containsSupabaseCo: boolean;
+    hostname: string | null;
+  };
   hint?: string;
 };
 
@@ -61,6 +72,24 @@ export function getSupabaseEnvStatus(): SupabaseEnvStatus {
     anonKey: { set: Boolean(anonKey) },
     secretKey: { set: Boolean(secretKey) },
   };
+
+  if (rawUrl) {
+    let hostname: string | null = null;
+    try {
+      hostname = new URL(
+        rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`
+      ).hostname;
+    } catch {
+      hostname = null;
+    }
+
+    status.urlDebug = {
+      length: rawUrl.length,
+      startsWithHttp: /^https?:\/\//i.test(rawUrl),
+      containsSupabaseCo: rawUrl.includes("supabase.co"),
+      hostname,
+    };
+  }
 
   if (!rawUrl) {
     status.hint =
