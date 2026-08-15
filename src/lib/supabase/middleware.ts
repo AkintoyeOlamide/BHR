@@ -27,6 +27,13 @@ async function getProfileAccess(
 
 export async function updateSession(request: NextRequest) {
   try {
+    const pathname = request.nextUrl.pathname;
+
+    // Public onboarding LMS — skip Supabase entirely for fast navigation.
+    if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
+      return NextResponse.next({ request });
+    }
+
     const env = getSupabaseEnv();
 
     if (!env) {
@@ -53,7 +60,6 @@ export async function updateSession(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const pathname = request.nextUrl.pathname;
     const isAuthRoute =
       pathname.startsWith("/login") || pathname.startsWith("/auth");
     const isProtectedRoute =

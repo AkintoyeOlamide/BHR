@@ -153,7 +153,8 @@ export function OnboardingWelcome() {
                 return (
                   <Link
                     key={dept.id}
-                    href={`/onboarding/${dept.id}`}
+                    href={getFirstLessonPath(dept.id)}
+                    prefetch
                     className="onboarding-dept-featured group relative col-span-full overflow-hidden rounded-[1.15rem] bg-[#07122c] text-white sm:rounded-[1.35rem]"
                     style={{ animationDelay: "0.05s" }}
                   >
@@ -218,7 +219,8 @@ export function OnboardingWelcome() {
               return (
                 <Link
                   key={dept.id}
-                  href={`/onboarding/${dept.id}`}
+                  href={getFirstLessonPath(dept.id)}
+                  prefetch
                   className="onboarding-dept-card group relative overflow-hidden rounded-[1.15rem] bg-white/80 p-4 backdrop-blur-sm ring-1 ring-slate-200/70 transition duration-300 sm:rounded-[1.25rem] sm:p-6"
                   style={{ animationDelay: `${0.06 + index * 0.05}s` }}
                 >

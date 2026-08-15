@@ -42,9 +42,9 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         summary:
           "How Bitachon came to be, what we stand for, and the people behind the work.",
         durationLabel: "8 min",
-        videoUrl: "/onboarding/welcome.mp4",
-        videoPoster: "/onboarding/welcome-poster.jpg",
-        slidesPdfUrl: "/onboarding/welcome-slides.pdf",
+        videoUrl: "/media/onboarding/welcome.mp4",
+        videoPoster: "/media/onboarding/welcome-poster.jpg",
+        slidesPdfUrl: "/media/onboarding/welcome-slides.pdf",
         slides: [
           {
             id: "s1",
@@ -109,9 +109,9 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         title: "People essentials",
         summary: "Contracts, conduct, and the HR services available to you.",
         durationLabel: "12 min",
-        videoUrl: "/onboarding/hr.mp4",
-        videoPoster: "/onboarding/hr-poster.jpg",
-        slidesPdfUrl: "/onboarding/hr-slides.pdf",
+        videoUrl: "/media/onboarding/hr.mp4",
+        videoPoster: "/media/onboarding/hr-poster.jpg",
+        slidesPdfUrl: "/media/onboarding/hr-slides.pdf",
         slides: [
           {
             id: "s1",
@@ -297,8 +297,8 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         title: "Digital hygiene",
         summary: "Passwords, phishing, and protecting company information.",
         durationLabel: "10 min",
-        videoUrl: "/onboarding/comms-it.mp4",
-        videoPoster: "/onboarding/comms-it-poster.jpg",
+        videoUrl: "/media/onboarding/comms-it.mp4",
+        videoPoster: "/media/onboarding/comms-it-poster.jpg",
         slides: [
           {
             id: "s1",
@@ -337,8 +337,8 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         summary:
           "How the Agro team works across production, processing, and day-to-day farm discipline.",
         durationLabel: "11 min",
-        videoUrl: "/onboarding/agro.mp4",
-        videoPoster: "/onboarding/agro-poster.jpg",
+        videoUrl: "/media/onboarding/agro.mp4",
+        videoPoster: "/media/onboarding/agro-poster.jpg",
         slides: [
           {
             id: "s1",
@@ -377,8 +377,8 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         summary:
           "Roles, routines, and what good support looks like across CHL operations.",
         durationLabel: "10 min",
-        videoUrl: "/onboarding/chl.mp4",
-        videoPoster: "/onboarding/chl-poster.jpg",
+        videoUrl: "/media/onboarding/chl.mp4",
+        videoPoster: "/media/onboarding/chl-poster.jpg",
         slides: [
           {
             id: "s1",
@@ -417,8 +417,8 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         summary:
           "Why controls exist, how reviews work, and how every staff member supports compliance.",
         durationLabel: "12 min",
-        videoUrl: "/onboarding/internal-control.mp4",
-        videoPoster: "/onboarding/internal-control-poster.jpg",
+        videoUrl: "/media/onboarding/internal-control.mp4",
+        videoPoster: "/media/onboarding/internal-control-poster.jpg",
         slides: [
           {
             id: "s1",
@@ -457,9 +457,9 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         summary:
           "How Admin & Facility supports the workplace, reports issues, and keeps shared spaces working well.",
         durationLabel: "10 min",
-        videoUrl: "/onboarding/admin-facility.mp4",
-        videoPoster: "/onboarding/admin-facility-poster.jpg",
-        slidesPdfUrl: "/onboarding/admin-facility-slides.pdf",
+        videoUrl: "/media/onboarding/admin-facility.mp4",
+        videoPoster: "/media/onboarding/admin-facility-poster.jpg",
+        slidesPdfUrl: "/media/onboarding/admin-facility-slides.pdf",
         slides: [
           {
             id: "s1",

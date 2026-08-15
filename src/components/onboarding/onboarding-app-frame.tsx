@@ -1,6 +1,5 @@
 "use client";
 
-import { OnboardingTrackerProvider } from "@/components/onboarding/onboarding-tracker";
 import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
 
 type Props = {
@@ -15,10 +14,8 @@ export function OnboardingAppFrame({
   dense,
 }: Props) {
   return (
-    <OnboardingTrackerProvider>
-      <OnboardingShell activeDepartmentId={activeDepartmentId} dense={dense}>
-        {children}
-      </OnboardingShell>
-    </OnboardingTrackerProvider>
+    <OnboardingShell activeDepartmentId={activeDepartmentId} dense={dense}>
+      {children}
+    </OnboardingShell>
   );
 }

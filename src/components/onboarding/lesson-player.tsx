@@ -143,7 +143,7 @@ export function LessonPlayer({ department, lesson }: LessonPlayerProps) {
                 controls
                 playsInline
                 poster={lesson.videoPoster}
-                preload="metadata"
+                preload="auto"
                 onEnded={() => {
                   if (!lessonDone) void markComplete();
                 }}

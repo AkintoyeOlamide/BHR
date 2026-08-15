@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   ACCENT_CLASSES,
+  getFirstLessonPath,
   ONBOARDING_DEPARTMENTS,
 } from "@/lib/onboarding/content";
 import { useOnboardingTracker } from "@/components/onboarding/onboarding-tracker";
@@ -42,6 +43,7 @@ export function OnboardingShell({
           <div className="px-4">
             <Link
               href="/onboarding"
+              prefetch
               className="inline-flex items-center gap-2.5 rounded-xl transition hover:opacity-90"
               title="Onboarding home"
             >
@@ -74,7 +76,8 @@ export function OnboardingShell({
                 return (
                   <Link
                     key={dept.id}
-                    href={`/onboarding/${dept.id}`}
+                    href={getFirstLessonPath(dept.id)}
+                    prefetch
                     title={dept.name}
                     className={`group relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition ${
                       active
@@ -145,7 +148,8 @@ export function OnboardingShell({
               </p>
               {nextOpen ? (
                 <Link
-                  href={`/onboarding/${nextOpen.id}`}
+                  href={getFirstLessonPath(nextOpen.id)}
+                  prefetch
                   className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-[#0b1a3d] px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-950"
                 >
                   {completedCount === 0 ? "Begin path" : "Continue"} →
@@ -232,7 +236,8 @@ export function OnboardingShell({
                 return (
                   <Link
                     key={dept.id}
-                    href={`/onboarding/${dept.id}`}
+                    href={getFirstLessonPath(dept.id)}
+                    prefetch
                     title={dept.name}
                     className={`max-w-[9.5rem] shrink-0 truncate rounded-xl px-3 py-2 text-xs font-semibold transition ${
                       active
