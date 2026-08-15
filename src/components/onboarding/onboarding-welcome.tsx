@@ -148,7 +148,8 @@ export function OnboardingWelcome() {
               const statusText = statusLabel(status);
 
               if (featured) {
-                const previewVideo = dept.lessons[0]?.videoUrl;
+                const previewPoster =
+                  dept.lessons[0]?.videoPoster ?? dept.lessons[0]?.videoUrl;
                 return (
                   <Link
                     key={dept.id}
@@ -158,16 +159,15 @@ export function OnboardingWelcome() {
                   >
                     <div className="relative flex flex-col md:grid md:min-h-[20rem] md:grid-cols-[minmax(0,1.1fr)_minmax(14rem,0.9fr)] lg:min-h-[22rem]">
                       <div className="relative order-1 aspect-[16/10] w-full overflow-hidden md:order-2 md:aspect-auto md:h-full md:min-h-full md:p-5 md:pl-0 lg:p-6 lg:pl-0">
-                        {previewVideo ? (
+                        {previewPoster ? (
                           <div className="relative h-full w-full overflow-hidden md:rounded-2xl md:ring-1 md:ring-white/10">
-                            <video
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={previewPoster}
+                              alt=""
                               className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
-                              src={previewVideo}
-                              muted
-                              loop
-                              playsInline
-                              autoPlay
-                              preload="metadata"
+                              loading="eager"
+                              decoding="async"
                             />
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07122c] via-[#07122c]/25 to-transparent md:via-transparent md:from-[#07122c]/45" />
                             <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-gradient-to-r from-[#07122c]/40 to-transparent md:block" />

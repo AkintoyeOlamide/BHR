@@ -139,7 +139,7 @@ export function LessonPlayer({ department, lesson }: LessonPlayerProps) {
               <video
                 ref={videoRef}
                 key={lesson.videoUrl + lesson.id}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
                 controls
                 playsInline
                 poster={lesson.videoPoster}
@@ -148,14 +148,7 @@ export function LessonPlayer({ department, lesson }: LessonPlayerProps) {
                   if (!lessonDone) void markComplete();
                 }}
               >
-                <source
-                  src={lesson.videoUrl}
-                  type={
-                    lesson.videoUrl.toLowerCase().endsWith(".mov")
-                      ? "video/quicktime"
-                      : "video/mp4"
-                  }
-                />
+                <source src={lesson.videoUrl} type="video/mp4" />
               </video>
             </div>
           ) : lesson.slidesPdfUrl ? (
