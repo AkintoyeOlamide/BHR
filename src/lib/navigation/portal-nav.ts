@@ -8,7 +8,10 @@ export type NavItem = {
 export const adminNav: NavItem[] = [
   { label: "Overview", href: "/admin" },
   { label: "Appraisals", href: "/admin/appraisals" },
+  { label: "Results", href: "/admin/results" },
+  { label: "Onboarding", href: "/admin/onboarding" },
   { label: "Review cycles", href: "/admin/cycles" },
+  { label: "Managers", href: "/admin/managers" },
   { label: "Staff", href: "/admin/employees" },
 ];
 
