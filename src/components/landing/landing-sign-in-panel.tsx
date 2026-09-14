@@ -1,49 +1,43 @@
+import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
+import { AuthPageBackground } from "@/components/auth-page-background";
 
 export function LandingSignInPanel() {
   return (
     <div className="relative flex min-h-screen flex-1 flex-col overflow-hidden lg:min-h-0">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,#f1f5f9_0%,#e8eef7_45%,#f8fafc_100%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(37,99,235,0.08),transparent_40%),radial-gradient(circle_at_20%_80%,rgba(6,182,212,0.06),transparent_35%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#94a3b808_1px,transparent_1px),linear-gradient(to_bottom,#94a3b808_1px,transparent_1px)] bg-[size:28px_28px]"
-        aria-hidden
-      />
+      <AuthPageBackground />
 
-      <header className="absolute top-0 right-0 left-0 z-10 flex h-12 items-center border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-sm lg:relative lg:h-14 lg:shrink-0 lg:justify-end lg:border-0 lg:bg-transparent lg:px-8">
+      <header className="auth-fade-up relative z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-4 sm:px-6 lg:h-14 lg:justify-end lg:px-8">
         <span className="text-sm font-semibold text-slate-900 lg:hidden">
           Bitachon HR
         </span>
-        <a
-          href="#how-it-works"
-          className="ml-auto hidden rounded-full border border-slate-200/80 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:text-slate-900 sm:text-sm lg:inline-flex"
-        >
-          How it works
-        </a>
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/reporting"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800"
+          >
+            Report an issue
+          </Link>
+          <a
+            href="#how-it-works"
+            className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900 lg:inline-flex"
+          >
+            How it works
+          </a>
+        </div>
       </header>
 
-      <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-5 sm:px-6 lg:py-8">
-        <div className="mx-auto w-full max-w-[340px]">
-          <div className="overflow-hidden rounded-xl bg-white/90 shadow-md shadow-slate-900/5 backdrop-blur-sm">
-            <div className="flex h-0.5">
-              <span className="flex-1 bg-cyan-400" />
-              <span className="flex-1 bg-orange-400" />
-              <span className="flex-1 bg-emerald-400" />
-              <span className="flex-[2] bg-[#1e3a8a]" />
-            </div>
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-8 pt-2 sm:px-6 lg:py-8">
+        <div className="mx-auto w-full max-w-[400px] sm:max-w-md">
+          <div className="auth-card-enter overflow-hidden rounded-2xl bg-white shadow-md shadow-slate-900/5 transition hover:shadow-lg hover:shadow-indigo-900/10">
+            <div className="auth-accent-bar h-1 w-full" />
 
-            <div className="p-4 sm:p-5">
-              <div className="mb-4 flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1e3a8a]/10 text-[#1e3a8a]">
+            <div className="p-5 sm:p-6">
+              <div className="auth-fade-up auth-fade-up-delay-1 mb-5 flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 text-indigo-600 transition group-hover:bg-indigo-600/15">
                   <svg
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -57,25 +51,30 @@ export function LandingSignInPanel() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold tracking-tight text-slate-900">
+                  <p className="text-base font-semibold tracking-tight text-slate-900">
                     Welcome back
                   </p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
-                    Sign in with your work email.
+                  <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                    Staff: work email + 4-digit code. Admin/HR: use the button
+                    below for password sign-in.
                   </p>
                 </div>
               </div>
 
-              <AuthForm variant="landing" />
+              <div className="auth-fade-up auth-fade-up-delay-2">
+                <AuthForm variant="landing" />
+              </div>
             </div>
           </div>
 
-          <p className="mt-3 text-center text-[11px] text-slate-500">
-            First time here? Tap{" "}
-            <span className="font-medium text-slate-700">
-              &quot;Create account&quot;
-            </span>{" "}
-            inside the form.
+          <p className="auth-fade-up auth-fade-up-delay-3 mt-5 text-center text-sm text-slate-500">
+            No login?{" "}
+            <Link
+              href="/reporting"
+              className="font-medium text-indigo-600 transition hover:text-indigo-800"
+            >
+              Report a facility issue
+            </Link>
           </p>
         </div>
       </div>

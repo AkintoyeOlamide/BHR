@@ -16,9 +16,10 @@ import {
   RowRemoveButton,
   SaveButton,
   WeightProgress,
-  cellInputClass,
   cellNumberClass,
   cellSelectClass,
+  cellTextareaClass,
+  cellWrappedReadonlyClass,
 } from "@/components/appraisal/appraisal-ui";
 import { AssignAppraisalDialog } from "@/components/appraisal/assign-appraisal-dialog";
 import {
@@ -33,6 +34,7 @@ import {
   createDefaultKpiRows,
   createEmptyKpiRow,
   distributeWeightsEvenly,
+  getKpiEffectiveRating,
   isWeightOverLimit,
   type KpiRow,
 } from "@/lib/kpi/calculations";
@@ -40,6 +42,12 @@ import {
 type TechnicalAssessmentFormProps = {
   appraisalId?: string;
   mode: "manager" | "employee" | "template";
+  /** Only the assigned reviewer may edit manager ratings. */
+  canEditManagerRating?: boolean;
+  /** HR can edit KPI structure; assigned managers rate only. */
+  canEditStructure?: boolean;
+  /** When true, staff cannot change their own ratings (already assigned). */
+  locked?: boolean;
   showAssign?: boolean;
   header: {
     appraisee_name: string;
@@ -61,6 +69,7 @@ function toKpiRows(raw: KpiRow[]): KpiRow[] {
     task: kpi.task ?? "",
     weight: Number(kpi.weight) || 0,
     rating: kpi.rating ?? null,
+    manager_rating: kpi.manager_rating ?? null,
     measurement_area: kpi.measurement_area ?? "",
   }));
 }
@@ -68,6 +77,9 @@ function toKpiRows(raw: KpiRow[]): KpiRow[] {
 export function TechnicalAssessmentForm({
   appraisalId,
   mode,
+  canEditManagerRating: canEditManagerRatingProp,
+  canEditStructure: canEditStructureProp,
+  locked = false,
   showAssign = false,
   header,
   initialKpis,
@@ -76,6 +88,12 @@ export function TechnicalAssessmentForm({
   const isTemplate = mode === "template";
   const isManager = mode === "manager" || isTemplate;
   const isEmployee = mode === "employee";
+  const canEditStaffRating = isEmployee && !locked;
+  const canEditManagerRating =
+    canEditManagerRatingProp ?? mode === "manager";
+  const canEditStructure =
+    canEditStructureProp ?? (isTemplate || (isManager && !canEditManagerRatingProp));
+  const ratingOnlyManager = isManager && canEditManagerRating && !canEditStructure;
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -112,8 +130,8 @@ export function TechnicalAssessmentForm({
           const maxAllowed = Math.max(0, 100 - otherTotal);
           return { ...row, weight: Math.min(parsed, maxAllowed) };
         }
-        if (field === "rating") {
-          return { ...row, rating: value === "" ? null : Number(value) };
+        if (field === "rating" || field === "manager_rating") {
+          return { ...row, [field]: value === "" ? null : Number(value) };
         }
         return { ...row, [field]: value };
       })
@@ -145,7 +163,7 @@ export function TechnicalAssessmentForm({
   }
 
   async function handleSave() {
-    if (isManager && isWeightOverLimit(kpis)) {
+    if (canEditStructure && isWeightOverLimit(kpis)) {
       setMessage(
         `Total weight cannot exceed 100%. Right now it is ${totalWeight.toFixed(2)}%.`
       );
@@ -190,8 +208,19 @@ export function TechnicalAssessmentForm({
         accent="violet"
         badge={`${formHeader.kpi_section_weight}% of total`}
         title="Technical KPI assessment"
-        subtitle="Define key performance indicators, assign weights, and rate each task. Weights across all rows cannot exceed 100%."
+        subtitle={
+          ratingOnlyManager
+            ? "Review each KPI and enter your manager rating. Staff ratings are shown for reference."
+            : "Define key performance indicators, assign weights, and rate each task. Weights across all rows cannot exceed 100%."
+        }
       />
+
+      {ratingOnlyManager && (
+        <div className="mx-3 mb-3 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-950 sm:mx-4 md:mx-6 lg:mx-8">
+          Enter a <strong>Manager rating</strong> (1–5) on every row, then
+          save. Use Overall to save the band — the employee submits to HR.
+        </div>
+      )}
 
       <AppraisalFormSection title="Employee details" accent="violet">
         <Input
@@ -201,7 +230,7 @@ export function TechnicalAssessmentForm({
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, appraisee_name: e.target.value }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="Full name"
         />
         <Input
@@ -211,7 +240,7 @@ export function TechnicalAssessmentForm({
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, appraiser_name: e.target.value }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="Manager or reviewer"
         />
         <Input
@@ -221,7 +250,7 @@ export function TechnicalAssessmentForm({
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, department: e.target.value }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="e.g. Comms & IT"
         />
         <Input
@@ -231,7 +260,7 @@ export function TechnicalAssessmentForm({
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, job_title: e.target.value }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="Job title"
         />
         <Input
@@ -241,7 +270,7 @@ export function TechnicalAssessmentForm({
           onChange={(e) =>
             setFormHeader((h) => ({ ...h, review_period: e.target.value }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="e.g. Jan – Dec 2026"
         />
         <Input
@@ -254,7 +283,7 @@ export function TechnicalAssessmentForm({
               time_in_present_position: e.target.value,
             }))
           }
-          readOnly={!isManager}
+          readOnly={!canEditStructure}
           placeholder="e.g. 2 years"
         />
       </AppraisalFormSection>
@@ -274,13 +303,14 @@ export function TechnicalAssessmentForm({
       ) : (
         <div className="mx-3 mb-2 rounded-lg bg-slate-50 px-3 py-2.5 sm:mx-4 sm:px-4 sm:py-3 md:mx-6 lg:mx-8">
           <p className="text-sm text-slate-600">
-            Review each KPI below and describe your results in the measurement
-            area. Your manager will complete the ratings separately.
+            Review each KPI below. KPI text, weights, and measurement areas are
+            set by HR — enter your staff rating for each row, then save. Manager
+            rating is filled in by your reviewer.
           </p>
         </div>
       )}
 
-      {isManager && (
+      {canEditStructure && (
         <AppraisalToolbar
           hint={`Up to ${KPI_MAX_ROWS} rows · max 100% total weight`}
         >
@@ -297,114 +327,161 @@ export function TechnicalAssessmentForm({
       <AppraisalTableWrap title="KPI rows" accent="violet">
         <table className="appraisal-data-table w-full border-collapse text-xs md:text-sm">
           <colgroup>
-            <col className="w-12" />
-            <col className="w-[28%]" />
-            {!isEmployee && <col className="w-28" />}
-            {!isEmployee && <col className="w-28" />}
-            <col className={isEmployee ? "w-[50%]" : "w-[28%]"} />
-            {!isEmployee && <col className="w-20" />}
-            {isManager && <col className="w-12" />}
+            <col style={{ width: "3%" }} />
+            <col style={{ width: "28%" }} />
+            <col style={{ width: "7%" }} />
+            <col style={{ width: "8%" }} />
+            <col style={{ width: "8%" }} />
+            <col style={{ width: "28%" }} />
+            <col style={{ width: "7%" }} />
+            {isManager && canEditStructure && <col style={{ width: "4%" }} />}
           </colgroup>
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="w-12 px-3 py-3 text-center">No.</th>
-              <th className="px-3 py-3 text-left">Key performance indicator</th>
-              {!isEmployee && (
-                <th className="w-24 px-2 py-3 text-center">Weight</th>
-              )}
-              {!isEmployee && (
-                <th className="w-28 px-2 py-3 text-center">Rating</th>
-              )}
-              <th className="px-3 py-3 text-left">Measurement area</th>
-              {!isEmployee && (
-                <th className="w-20 px-2 py-3 text-center">Score</th>
-              )}
-              {isManager && <th className="w-12 px-2 py-3" />}
+              <th className="px-2 py-3 text-center md:px-3">No.</th>
+              <th className="px-2 py-3 text-left md:px-3">
+                Key performance indicator
+              </th>
+              <th className="px-2 py-3 text-center">Weight</th>
+              <th className="px-2 py-3 text-center">Staff rating</th>
+              <th
+                className={`px-2 py-3 text-center ${
+                  ratingOnlyManager ? "text-indigo-700" : ""
+                }`}
+              >
+                Manager rating
+              </th>
+              <th className="px-2 py-3 text-left md:px-3">Measurement area</th>
+              <th className="px-2 py-3 text-center">Score</th>
+              {isManager && canEditStructure && <th className="px-1 py-3" />}
             </tr>
           </thead>
           <tbody>
             {kpis.map((kpi, index) => {
-              const rowScore = calculateKpiRowScore(kpi.weight, kpi.rating);
+              const rowScore = calculateKpiRowScore(
+                kpi.weight,
+                getKpiEffectiveRating(kpi)
+              );
               return (
                 <tr key={kpi.id ?? index} className="border-b border-slate-100">
                   <td
                     data-label={`KPI ${index + 1}`}
-                    className="appraisal-cell-index px-3 py-2 text-center text-xs font-medium text-slate-400"
+                    className="appraisal-cell-index px-2 py-2 text-center text-xs font-medium text-slate-400 md:px-3"
                   >
                     {index + 1}
                   </td>
-                  <td data-label="Key performance indicator" className="p-2">
-                    <input
-                      type="text"
+                  <td
+                    data-label="Key performance indicator"
+                    className="appraisal-cell-text p-1.5 md:p-2"
+                  >
+                    <textarea
                       value={kpi.task}
                       onChange={(e) => updateKpi(index, "task", e.target.value)}
-                      readOnly={!isManager}
-                      className={cellInputClass}
+                      readOnly={!canEditStructure}
+                      rows={3}
+                      className={
+                        canEditStructure
+                          ? cellTextareaClass
+                          : cellWrappedReadonlyClass
+                      }
                     />
                   </td>
-                  {!isEmployee && (
-                    <td data-label="Weight" className="p-2">
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.01}
-                          value={kpi.weight === 0 ? "" : kpi.weight}
-                          onChange={(e) =>
-                            updateKpi(index, "weight", e.target.value)
-                          }
-                          readOnly={!isManager}
-                          className={cellNumberClass}
-                        />
-                        <span className="shrink-0 text-xs font-medium text-slate-500">
-                          %
-                        </span>
-                      </div>
-                    </td>
-                  )}
-                  {!isEmployee && (
-                    <td data-label="Rating" className="p-2">
-                      <select
-                        value={kpi.rating ?? ""}
+                  <td
+                    data-label="Weight"
+                    className="appraisal-cell-weight p-1.5 md:p-2"
+                  >
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={0.01}
+                        inputMode="decimal"
+                        value={kpi.weight === 0 ? "" : kpi.weight}
                         onChange={(e) =>
-                          updateKpi(index, "rating", e.target.value)
+                          updateKpi(index, "weight", e.target.value)
                         }
-                        disabled={!isManager}
-                        className={cellSelectClass}
-                      >
-                        <option value="">—</option>
-                        {Array.from(
-                          { length: KPI_RATING_MAX - KPI_RATING_MIN + 1 },
-                          (_, i) => KPI_RATING_MIN + i
-                        ).map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  )}
-                  <td data-label="Measurement area" className="p-2">
-                    <input
-                      type="text"
+                        readOnly={!canEditStructure}
+                        className={cellNumberClass}
+                      />
+                      <span className="shrink-0 text-xs font-medium text-slate-500">
+                        %
+                      </span>
+                    </div>
+                  </td>
+                  <td
+                    data-label="Staff rating"
+                    className="appraisal-cell-rating p-1.5 md:p-2"
+                  >
+                    <select
+                      value={kpi.rating ?? ""}
+                      onChange={(e) =>
+                        updateKpi(index, "rating", e.target.value)
+                      }
+                      disabled={!canEditStaffRating}
+                      className={cellSelectClass}
+                    >
+                      <option value="">—</option>
+                      {Array.from(
+                        { length: KPI_RATING_MAX - KPI_RATING_MIN + 1 },
+                        (_, i) => KPI_RATING_MIN + i
+                      ).map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td
+                    data-label="Manager rating"
+                    className={`appraisal-cell-rating p-1.5 md:p-2 ${
+                      ratingOnlyManager ? "rounded-lg bg-indigo-50/80" : ""
+                    }`}
+                  >
+                    <select
+                      value={kpi.manager_rating ?? ""}
+                      onChange={(e) =>
+                        updateKpi(index, "manager_rating", e.target.value)
+                      }
+                      disabled={!canEditManagerRating}
+                      className={cellSelectClass}
+                    >
+                      <option value="">—</option>
+                      {Array.from(
+                        { length: KPI_RATING_MAX - KPI_RATING_MIN + 1 },
+                        (_, i) => KPI_RATING_MIN + i
+                      ).map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td
+                    data-label="Measurement area"
+                    className="appraisal-cell-text p-1.5 md:p-2"
+                  >
+                    <textarea
                       value={kpi.measurement_area}
                       onChange={(e) =>
                         updateKpi(index, "measurement_area", e.target.value)
                       }
-                      readOnly={!isManager && mode !== "employee"}
-                      className={cellInputClass}
+                      readOnly={!canEditStructure}
+                      rows={3}
+                      className={
+                        canEditStructure
+                          ? cellTextareaClass
+                          : cellWrappedReadonlyClass
+                      }
                     />
                   </td>
-                  {!isEmployee && (
-                    <td
-                      data-label="Score"
-                      className="appraisal-cell-score px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800"
-                    >
-                      {rowScore.toFixed(2)}
-                    </td>
-                  )}
-                  {isManager && (
+                  <td
+                    data-label="Score"
+                    className="appraisal-cell-score px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-800"
+                  >
+                    {rowScore.toFixed(2)}
+                  </td>
+                  {canEditStructure && (
                     <td className="appraisal-cell-actions px-1 py-2 text-center">
                       <RowRemoveButton onClick={() => removeKpiRow(index)} />
                     </td>
@@ -413,36 +490,37 @@ export function TechnicalAssessmentForm({
               );
             })}
           </tbody>
-          {isManager && (
-            <tfoot>
-              <tr className="border-t-2 border-slate-200 font-semibold">
-                <td colSpan={2} className="px-4 py-3 text-right text-slate-600">
-                  Total weighting
-                </td>
-                <td
-                  data-label="Total weight"
-                  className={`px-2 py-3 text-center tabular-nums ${
-                    weightsOk ? "text-slate-900" : "text-red-600"
-                  }`}
-                >
-                  {totalWeight.toFixed(2)}%
-                </td>
-                <td colSpan={3} />
-                <td
-                  data-label="Overall score"
-                  className="px-2 py-3 text-center tabular-nums text-slate-900"
-                >
-                  {overallRating.toFixed(2)}
-                </td>
-                <td />
-              </tr>
-            </tfoot>
-          )}
+          <tfoot>
+            <tr className="border-t-2 border-slate-200 font-semibold">
+              <td
+                colSpan={2}
+                className="hidden px-4 py-3 text-right text-slate-600 md:table-cell"
+              >
+                Total weighting
+              </td>
+              <td
+                data-label="Total weight"
+                className={`appraisal-cell-weight px-2 py-3 text-center tabular-nums ${
+                  weightsOk ? "text-slate-900" : "text-red-600"
+                }`}
+              >
+                {totalWeight.toFixed(2)}%
+              </td>
+              <td colSpan={3} className="hidden md:table-cell" />
+              <td
+                data-label="Overall score"
+                className="appraisal-cell-score px-2 py-3 text-center tabular-nums text-slate-900"
+              >
+                {overallRating.toFixed(2)}
+              </td>
+              {canEditStructure && <td className="hidden md:table-cell" />}
+            </tr>
+          </tfoot>
         </table>
       </AppraisalTableWrap>
 
       <div className="space-y-3 px-3 pt-3 md:px-6 md:pt-4 lg:px-8">
-        {!weightsOk && isManager && (
+        {!weightsOk && canEditStructure && (
           <AppraisalAlert variant="error">
             Total weight cannot exceed 100%. Current total:{" "}
             {totalWeight.toFixed(2)}%.
@@ -456,18 +534,24 @@ export function TechnicalAssessmentForm({
       <AppraisalStickyFooter
         helper={
           isEmployee
-            ? "Describe your results in each measurement area, then save."
-            : `Score = (Weight ÷ 100) × Rating · Section = ${formHeader.kpi_section_weight}% of overall`
+            ? locked
+              ? "Staff ratings are locked. Manager ratings appear in the Manager rating column as they are saved."
+              : "Enter your staff rating for each KPI, then save. Manager rating is set by your assigned manager."
+            : canEditManagerRating
+              ? "Enter your manager rating on each row, then save. Continue to Behavioural, then Overall to save the rating band. Staff submits to HR."
+              : "You can edit KPI structure. Only the assigned manager can enter manager ratings."
         }
       >
         <div className="flex flex-wrap items-center gap-2">
-          <SaveButton
-            loading={loading}
-            label={
-              isTemplate ? "Save template" : "Save technical section"
-            }
-            onClick={handleSave}
-          />
+          {(!isEmployee || !locked) && (
+            <SaveButton
+              loading={loading}
+              label={
+                isTemplate ? "Save template" : "Save technical section"
+              }
+              onClick={handleSave}
+            />
+          )}
           {showAssign && (
             <AssignAppraisalDialog onSuccess={setMessage} />
           )}

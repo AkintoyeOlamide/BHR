@@ -5,6 +5,7 @@ export type AppraisalStatus =
   | "completed";
 
 export type CycleStatus = "draft" | "active" | "closed";
+export type AssessmentType = "both" | "technical" | "behavioural";
 
 export type AppraisalCycle = {
   id: string;
@@ -22,6 +23,7 @@ export type Appraisal = {
   cycle_id: string;
   employee_id: string;
   reviewer_id: string | null;
+  assessment_type: AssessmentType;
   status: AppraisalStatus;
   job_title: string | null;
   department: string | null;
@@ -54,14 +56,20 @@ export type AppraisalWithRelations = Appraisal & {
 export const APPRAISAL_STATUS_LABELS: Record<AppraisalStatus, string> = {
   not_started: "Not started",
   in_progress: "In progress",
-  submitted: "Submitted",
-  completed: "Completed",
+  submitted: "With manager",
+  completed: "Submitted to HR",
 };
 
 export const CYCLE_STATUS_LABELS: Record<CycleStatus, string> = {
   draft: "Draft",
   active: "Active",
   closed: "Closed",
+};
+
+export const ASSESSMENT_TYPE_LABELS: Record<AssessmentType, string> = {
+  both: "Both",
+  technical: "Technical",
+  behavioural: "Behavioural",
 };
 
 export const RATING_OPTIONS = [

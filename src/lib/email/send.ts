@@ -1,11 +1,19 @@
 import nodemailer from "nodemailer";
 import { getEmailFrom, getSmtpConfig, isEmailConfigured } from "@/lib/email/env";
 
+export type EmailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+};
+
 export type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
   text: string;
+  from?: string;
+  attachments?: EmailAttachment[];
 };
 
 export type SendEmailResult =
@@ -40,11 +48,16 @@ export async function sendEmail(
 
   try {
     const info = await transporter.sendMail({
-      from: getEmailFrom(),
+      from: input.from ?? getEmailFrom(),
       to: input.to,
       subject: input.subject,
       html: input.html,
       text: input.text,
+      attachments: input.attachments?.map((file) => ({
+        filename: file.filename,
+        content: file.content,
+        contentType: file.contentType,
+      })),
     });
 
     return {

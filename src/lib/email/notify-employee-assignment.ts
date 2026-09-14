@@ -16,8 +16,9 @@ export type EmployeeAssignmentEmailInput = {
 };
 
 export function buildEmployeeAssignmentEmail(input: EmployeeAssignmentEmailInput) {
-  const loginUrl = `${getAppUrl()}/login`;
-  const dashboardUrl = `${getAppUrl()}/dashboard`;
+  const appUrl = getAppUrl();
+  const loginUrl = `${appUrl}/login`;
+  const dashboardUrl = `${appUrl}/dashboard`;
   const cycleLine = input.cycleTitle
     ? `Review cycle: ${input.cycleTitle}`
     : null;
@@ -37,6 +38,7 @@ export function buildEmployeeAssignmentEmail(input: EmployeeAssignmentEmailInput
     "",
     buildLoginCredentialsText(input.credentials),
     "",
+    `BHR live URL: ${appUrl}`,
     `Sign in here: ${loginUrl}`,
     `After signing in, open your review from: ${dashboardUrl}`,
     "",
@@ -60,6 +62,10 @@ export function buildEmployeeAssignmentEmail(input: EmployeeAssignmentEmailInput
         <a href="${loginUrl}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">
           Sign in to BHR
         </a>
+      </p>
+      <p style="font-size:14px;color:#475569">
+        BHR live URL:
+        <a href="${appUrl}" style="color:#7c3aed">${appUrl}</a>
       </p>
       <p style="font-size:14px;color:#475569">
         After signing in, go to

@@ -1,36 +1,53 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AssignedAppraisalsList } from "@/components/appraisal/assigned-appraisals-list";
 import { PortalShell } from "@/components/layouts/portal-shell";
+import { fetchAdminAppraisalList } from "@/lib/appraisals/admin-list";
 import { requireProfile } from "@/lib/auth/profile";
 import { canAccessAdmin } from "@/lib/auth/roles";
-import { createClient } from "@/lib/supabase/server";
-import { APPRAISAL_STATUS_LABELS } from "@/lib/types/appraisal";
-import { appraisalStatusBadgeClass } from "@/lib/ui/status-badge";
 import { getPortalNav } from "@/lib/navigation/portal-nav";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const session = await requireProfile();
   if (!session) redirect("/login");
   if (!canAccessAdmin(session.profile.role, session.profile.email)) redirect("/dashboard");
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  const [{ count: employeeCount }, { count: cycleCount }, { count: appraisalCount }, { data: recentAppraisals }] =
-    await Promise.all([
-      supabase.from("profiles").select("*", { count: "exact", head: true }),
-      supabase.from("appraisal_cycles").select("*", { count: "exact", head: true }),
-      supabase.from("appraisals").select("*", { count: "exact", head: true }),
-      supabase
-        .from("appraisals")
-        .select("id, status, updated_at, employee:profiles!appraisals_employee_id_fkey(full_name)")
-        .order("updated_at", { ascending: false })
-        .limit(5),
-    ]);
+  const [
+    { count: employeeCount },
+    { count: cycleCount },
+    { count: appraisalCount },
+    recentAppraisals,
+  ] = await Promise.all([
+    admin.from("profiles").select("*", { count: "exact", head: true }),
+    admin.from("appraisal_cycles").select("*", { count: "exact", head: true }),
+    admin.from("appraisals").select("*", { count: "exact", head: true }),
+    fetchAdminAppraisalList(5),
+  ]);
 
   const stats = [
-    { label: "Employees", value: employeeCount ?? 0, tone: "portal-stat-tile--blue" },
-    { label: "Review cycles", value: cycleCount ?? 0, tone: "portal-stat-tile--violet" },
-    { label: "Appraisals", value: appraisalCount ?? 0, tone: "portal-stat-tile--teal" },
+    {
+      label: "Employees",
+      value: employeeCount ?? 0,
+      tone: "portal-stat-tile--blue",
+      href: "/admin/employees",
+    },
+    {
+      label: "Review cycles",
+      value: cycleCount ?? 0,
+      tone: "portal-stat-tile--violet",
+      href: "/admin/cycles",
+    },
+    {
+      label: "Appraisals",
+      value: appraisalCount ?? 0,
+      tone: "portal-stat-tile--teal",
+      href: "/admin/appraisals",
+    },
   ] as const;
 
   return (
@@ -42,10 +59,14 @@ export default async function AdminPage() {
     >
       <div className="portal-stat-grid">
         {stats.map((stat) => (
-          <div key={stat.label} className={`portal-stat-tile ${stat.tone}`}>
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className={`portal-stat-tile portal-stat-tile--link ${stat.tone}`}
+          >
             <p className="portal-stat-value">{stat.value}</p>
             <p className="portal-stat-label">{stat.label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -58,37 +79,21 @@ export default async function AdminPage() {
           <li>
             <strong className="font-medium text-stone-900">HR Manager:</strong> hr@bhr.com / bhradmin
           </li>
+          <li>
+            <strong className="font-medium text-stone-900">Facility Manager:</strong> facility@bhr.com / bhradmin
+          </li>
         </ul>
       </section>
 
       <section className="mt-12">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="portal-section-title">Recent appraisals</h2>
-          <Link href="/admin/appraisals" className="portal-link">
-            View all →
+          <h2 className="portal-section-title">Assigned appraisals</h2>
+          <Link href="/admin/results" className="portal-link">
+            View all results →
           </Link>
         </div>
         <div className="mt-4">
-          {(recentAppraisals ?? []).length === 0 ? (
-            <p className="text-sm text-stone-500">
-              No appraisals yet. HR can assign them from the manager area.
-            </p>
-          ) : (
-            recentAppraisals?.map((item) => (
-              <Link
-                key={item.id}
-                href={`/manager/appraisals/${item.id}`}
-                className="portal-list-item"
-              >
-                <span className="font-medium text-stone-900">
-                  {(item.employee as { full_name?: string })?.full_name ?? "Employee"}
-                </span>
-                <span className={appraisalStatusBadgeClass(item.status)}>
-                  {APPRAISAL_STATUS_LABELS[item.status as keyof typeof APPRAISAL_STATUS_LABELS]}
-                </span>
-              </Link>
-            ))
-          )}
+          <AssignedAppraisalsList appraisals={recentAppraisals} />
         </div>
       </section>
     </PortalShell>

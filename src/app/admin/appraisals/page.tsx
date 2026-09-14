@@ -13,7 +13,7 @@ export default async function AdminAppraisalsPage() {
   return (
     <PortalShell
       title="Appraisals"
-      subtitle="Edit the appraisal form and assign reviews to employees."
+      subtitle="Open an assigned staff appraisal to view ratings, overall score, and dev plan. The form template is for setup only."
       role={session.profile.role}
       nav={getPortalNav(session.profile.role, session.profile.email)}
     >

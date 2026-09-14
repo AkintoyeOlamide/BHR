@@ -4,6 +4,7 @@ export type BehaviouralRow = {
   key_measurement: string;
   weight: number;
   rating: number | null;
+  manager_rating: number | null;
   comments: string;
 };
 
@@ -11,6 +12,13 @@ export const BEHAVIOURAL_SECTION_WEIGHT_DEFAULT = 20;
 export const BEHAVIOURAL_MAX_ROWS = 50;
 export const BEHAVIOURAL_RATING_MIN = 1;
 export const BEHAVIOURAL_RATING_MAX = 5;
+
+/** Official rating: manager overrides staff when present. */
+export function getBehaviouralEffectiveRating(
+  row: Pick<BehaviouralRow, "rating" | "manager_rating">
+): number | null {
+  return row.manager_rating ?? row.rating;
+}
 
 export function calculateBehaviouralRowScore(
   weight: number,
@@ -27,10 +35,15 @@ export function calculateBehaviouralRowScore(
 }
 
 export function calculateBehaviouralOverallRating(
-  items: Pick<BehaviouralRow, "weight" | "rating">[]
+  items: Pick<BehaviouralRow, "weight" | "rating" | "manager_rating">[]
 ): number {
   return items.reduce(
-    (sum, item) => sum + calculateBehaviouralRowScore(item.weight, item.rating),
+    (sum, item) =>
+      sum +
+      calculateBehaviouralRowScore(
+        item.weight,
+        getBehaviouralEffectiveRating(item)
+      ),
     0
   );
 }
@@ -75,6 +88,7 @@ export function createEmptyBehaviouralRow(
     key_measurement: "",
     weight,
     rating: null,
+    manager_rating: null,
     comments: "",
   };
 }
@@ -82,5 +96,23 @@ export function createEmptyBehaviouralRow(
 export function createDefaultBehaviouralRows(count = 1): BehaviouralRow[] {
   return Array.from({ length: count }, (_, index) =>
     createEmptyBehaviouralRow(index + 1, 0)
+  );
+}
+
+export function parseBehaviouralRatingValue(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  if (Number.isNaN(n)) return null;
+  return n;
+}
+
+export function isValidOptionalBehaviouralRating(
+  rating: number | null
+): boolean {
+  if (rating === null) return true;
+  return (
+    !Number.isNaN(rating) &&
+    rating >= BEHAVIOURAL_RATING_MIN &&
+    rating <= BEHAVIOURAL_RATING_MAX
   );
 }

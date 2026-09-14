@@ -34,13 +34,38 @@ export function isLineManager(profile: {
   );
 }
 
+/** Can view/edit appraisal structure (HR any; line manager only if assigned). */
 export function canManageAppraisal(
   profile: { role: string; email: string; id: string },
-  appraisal: { reviewer_id: string | null }
+  appraisal: { reviewer_id: string | null },
+  authUserId?: string | null
 ): boolean {
   if (isFullHrUser(profile)) return true;
   if (profile.role === ROLES.HR_MANAGER) {
-    return appraisal.reviewer_id === profile.id;
+    return isAssignedReviewer(profile.id, appraisal.reviewer_id, authUserId);
   }
+  return false;
+}
+
+/**
+ * Only the assigned manager (reviewer) may set manager ratings.
+ * Full HR can view/setup appraisals but cannot enter manager ratings.
+ */
+export function canEditManagerRating(
+  profile: { id: string },
+  appraisal: { reviewer_id: string | null },
+  authUserId?: string | null
+): boolean {
+  return isAssignedReviewer(profile.id, appraisal.reviewer_id, authUserId);
+}
+
+function isAssignedReviewer(
+  profileId: string,
+  reviewerId: string | null,
+  authUserId?: string | null
+) {
+  if (!reviewerId) return false;
+  if (reviewerId === profileId) return true;
+  if (authUserId && reviewerId === authUserId) return true;
   return false;
 }

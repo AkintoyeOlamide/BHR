@@ -2,12 +2,26 @@ export function getAppUrl() {
   return (
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.APP_URL ??
-    "http://localhost:3000"
+    "https://bhr-iota-mu.vercel.app"
   ).replace(/\/$/, "");
 }
 
 export function getEmailFrom() {
   return process.env.EMAIL_FROM ?? "BHR Appraisals <noreply@bhr.local>";
+}
+
+/** Display name for all facility-related outbound email. */
+export function getFacilityEmailFrom() {
+  const smtpUser = process.env.SMTP_USER?.trim();
+  const fallback = getEmailFrom();
+  const addressMatch = fallback.match(/<([^>]+)>/);
+  const address = addressMatch?.[1] ?? smtpUser ?? "noreply@bhr.local";
+  return `BITACHON FACILITY <${address}>`;
+}
+
+export function facilityEmailSubject(detail: string) {
+  const cleaned = detail.trim().replace(/\s+/g, " ");
+  return cleaned ? `BITACHON FACILITY — ${cleaned}` : "BITACHON FACILITY";
 }
 
 export function getSmtpConfig() {

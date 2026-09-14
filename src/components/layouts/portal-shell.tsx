@@ -12,6 +12,8 @@ type PortalShellProps = {
   nav: NavItem[];
   children: React.ReactNode;
   compact?: boolean;
+  /** Wider content column for data-heavy pages like BERP */
+  wide?: boolean;
   backHref?: string;
   backLabel?: string;
   statusLabel?: string;
@@ -25,17 +27,21 @@ export function PortalShell({
   nav,
   children,
   compact = false,
+  wide = false,
   backHref,
   backLabel = "Back",
   statusLabel,
   statusClassName,
 }: PortalShellProps) {
   const focus = Boolean(backHref);
+  const shellWidth = wide
+    ? "mx-auto w-full max-w-[100rem] px-4 sm:px-6 lg:px-8 xl:px-10"
+    : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8";
 
   return (
     <div className="portal-light portal-page portal-shell-mobile-flat min-h-screen text-slate-900">
       <header className="portal-header sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className={shellWidth}>
           {/* Mobile — focused appraisal header */}
           {focus && (
             <div className="sm:hidden">
@@ -98,7 +104,7 @@ export function PortalShell({
       </header>
 
       <div
-        className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${
+        className={`${shellWidth} ${
           compact ? "pb-8 pt-3 sm:pb-12 sm:pt-6" : "pb-12 pt-6 sm:pt-10"
         }`}
       >
@@ -129,7 +135,9 @@ export function PortalShell({
             <div className="mt-1 flex flex-wrap items-center gap-2 sm:mt-2">
               {subtitle && (
                 <p
-                  className={`max-w-2xl text-slate-500 ${
+                  className={`text-slate-500 ${
+                    wide ? "max-w-3xl" : "max-w-2xl"
+                  } ${
                     compact ? "text-xs sm:text-sm md:text-base" : "text-sm md:text-base"
                   }`}
                 >

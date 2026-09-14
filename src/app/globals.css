@@ -19,6 +19,10 @@
   --color-emerald: #059669;
   --color-rose: #db2777;
   --color-sky: #0284c7;
+  --font-geist-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 @theme inline {
@@ -99,6 +103,12 @@ body {
   .portal-stat-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .portal-stat-grid--wide {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 
@@ -254,6 +264,11 @@ a.portal-stat-tile--link:focus-visible {
 .portal-badge--slate {
   background: #f1f5f9;
   color: #475569;
+}
+
+.portal-badge--rose {
+  background: #fff1f2;
+  color: #e11d48;
 }
 
 .portal-link {
@@ -1230,15 +1245,14 @@ details.portal-surface > summary::-webkit-details-marker {
 
 .onboarding-dept-card {
   animation: onboarding-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .onboarding-dept-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow:
-    0 18px 40px -24px rgba(15, 23, 42, 0.28),
-    0 0 0 1px rgba(15, 23, 42, 0.04);
-  background: rgba(255, 255, 255, 0.95);
+    0 16px 36px -22px rgba(15, 23, 42, 0.22),
+    0 0 0 1px rgba(15, 23, 42, 0.05);
 }
 
 .onboarding-dept-featured {
@@ -1377,5 +1391,389 @@ details.portal-surface > summary::-webkit-details-marker {
   .onboarding-dept-card:hover,
   .onboarding-dept-featured:hover {
     transform: none;
+  }
+}
+
+/* ── BERP staff dashboard ── */
+
+.berp-app {
+  --berp-sidebar: #0b1a3d;
+  --berp-sidebar-2: #07122c;
+  --berp-mint: #818cf8;
+  --berp-bg: #eef2f7;
+  min-height: 100vh;
+  background: var(--berp-bg);
+  color: #0f172a;
+}
+
+.berp-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  display: flex;
+  width: 16.5rem;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--berp-sidebar) 0%, var(--berp-sidebar-2) 100%);
+  padding: 1.5rem 1.1rem 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.berp-mark {
+  display: inline-flex;
+  height: 2.35rem;
+  width: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.berp-nav-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.95rem;
+  padding: 0.72rem 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.berp-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.berp-nav-item--active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 600;
+}
+
+.berp-main {
+  min-height: 100vh;
+  padding-left: 0;
+}
+
+.berp-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+  padding: 1.35rem 1.25rem 0.5rem;
+}
+
+.berp-topbar-actions {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 22rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.berp-content {
+  padding: 1rem 1.25rem 2.5rem;
+}
+
+.berp-search {
+  display: flex;
+  min-width: 12rem;
+  flex: 1 1 16rem;
+  max-width: 20rem;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 9999px;
+  background: #fff;
+  padding: 0.55rem 0.95rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.berp-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+}
+
+.berp-search input::placeholder {
+  color: #94a3b8;
+}
+
+.berp-icon-btn {
+  position: relative;
+  display: inline-flex;
+  height: 2.6rem;
+  width: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #fff;
+  color: #475569;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.berp-badge {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.15rem;
+  min-width: 1.05rem;
+  border-radius: 9999px;
+  background: #ef4444;
+  padding: 0 0.28rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  color: #fff;
+}
+
+.berp-user {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 9999px;
+  background: #fff;
+  padding: 0.28rem 0.7rem 0.28rem 0.28rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.berp-popover {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  z-index: 30;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+}
+
+.berp-popover--right {
+  right: 0;
+}
+
+.berp-card {
+  border-radius: 1.35rem;
+  background: #fff;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.berp-kpi {
+  border-radius: 1.35rem;
+  padding: 1.2rem 1.3rem 1.1rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+}
+
+.berp-kpi > button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.berp-kpi--live {
+  background: #e7f8ef;
+}
+
+.berp-kpi--late {
+  background: #fdecee;
+}
+
+.berp-kpi--leave {
+  background: #eef0fe;
+}
+
+.berp-kpi--updates {
+  background: #f3eefe;
+}
+
+.berp-kpi-value {
+  margin-top: 1.15rem;
+  font-size: 2.35rem;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.berp-kpi-icon {
+  display: inline-flex;
+  height: 2.35rem;
+  width: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+}
+
+.berp-kpi-icon--live {
+  background: #d8f4e4;
+  color: #059669;
+}
+
+.berp-kpi-icon--late {
+  background: #f9d4d8;
+  color: #e11d48;
+}
+
+.berp-kpi-icon--leave {
+  background: #dddffc;
+  color: #4f46e5;
+}
+
+.berp-kpi-icon--updates {
+  background: #e4d8fb;
+  color: #7c3aed;
+}
+
+.berp-view-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.berp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.berp-filter {
+  border-radius: 9999px;
+  background: #fff;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.berp-filter--active {
+  background: #0b1a3d;
+  color: #fff;
+}
+
+.berp-kpi--live .berp-view-link,
+.berp-kpi-icon--live + * .berp-view-link {
+  color: #0f9f6e;
+}
+
+.berp-kpi--late .berp-view-link {
+  color: #e11d48;
+}
+
+.berp-kpi--leave .berp-view-link {
+  color: #4f46e5;
+}
+
+.berp-kpi--updates .berp-view-link {
+  color: #7c3aed;
+}
+
+.berp-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.22rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.berp-pill--emerald {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.berp-pill--live {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.berp-pill--live::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.4rem;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.berp-pill--amber {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.berp-pill--slate {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.berp-table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.berp-table th {
+  padding: 0.75rem 0.75rem 0.75rem 0;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.berp-table td {
+  padding: 0.85rem 0.75rem 0.85rem 0;
+  vertical-align: middle;
+  border-top: 1px solid #f1f5f9;
+}
+
+.berp-table--padded,
+.berp-table--live {
+  min-width: 56rem;
+}
+
+.berp-table--padded th,
+.berp-table--padded td {
+  padding: 0.95rem 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .berp-main {
+    padding-left: 16.5rem;
+  }
+
+  .berp-topbar {
+    flex-wrap: nowrap;
+    padding-top: 1.5rem;
+  }
+
+  .berp-topbar-actions {
+    flex: 0 1 auto;
+  }
+
+  .berp-topbar,
+  .berp-content {
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
   }
 }

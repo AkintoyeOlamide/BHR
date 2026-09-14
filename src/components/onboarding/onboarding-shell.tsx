@@ -3,9 +3,13 @@
 import Link from "next/link";
 import {
   ACCENT_CLASSES,
+  getDepartmentsForModule,
   getFirstLessonPath,
+  getModuleForDepartment,
   ONBOARDING_DEPARTMENTS,
+  ONBOARDING_MODULES,
 } from "@/lib/onboarding/content";
+import { ModuleLogo } from "@/components/onboarding/module-logo";
 import { useOnboardingTracker } from "@/components/onboarding/onboarding-tracker";
 
 type OnboardingShellProps = {
@@ -35,6 +39,9 @@ export function OnboardingShell({
     ONBOARDING_DEPARTMENTS.find(
       (dept) => departmentStatus(dept.id) !== "completed"
     ) ?? ONBOARDING_DEPARTMENTS[0];
+  const activeModule = activeDepartmentId
+    ? getModuleForDepartment(activeDepartmentId)
+    : null;
 
   return (
     <div className="onboarding-shell portal-light min-h-screen text-slate-900">
@@ -61,63 +68,69 @@ export function OnboardingShell({
             </Link>
           </div>
 
-          <div className="mt-7 px-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-              Departments
-            </p>
-          </div>
-
-          <nav className="mt-3 min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
-            <div className="flex flex-col gap-0.5">
-              {ONBOARDING_DEPARTMENTS.map((dept, index) => {
-                const active = dept.id === activeDepartmentId;
-                const accent = ACCENT_CLASSES[dept.accent];
-                const status = departmentStatus(dept.id);
+          <nav className="mt-6 min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
+            <div className="flex flex-col gap-5">
+              {ONBOARDING_MODULES.map((mod) => {
+                const departments = getDepartmentsForModule(mod.id);
                 return (
-                  <Link
-                    key={dept.id}
-                    href={getFirstLessonPath(dept.id)}
-                    prefetch
-                    title={dept.name}
-                    className={`group relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition ${
-                      active
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-semibold tabular-nums ${
-                        active ? "bg-white/15 text-white" : `${accent.soft}`
-                      }`}
-                    >
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold tracking-tight">
-                        {dept.navLabel}
-                      </span>
-                      <span
-                        className={`block truncate text-[11px] ${
-                          active ? "text-white/55" : "text-slate-400"
-                        }`}
-                      >
-                        {status === "completed"
-                          ? "Done"
-                          : status === "in_progress"
-                            ? "In progress"
-                            : "Not started"}
-                      </span>
-                    </span>
-                    {status === "completed" ? (
-                      <span
-                        className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                          active ? "bg-emerald-300" : "bg-emerald-500"
-                        }`}
-                      />
-                    ) : active ? (
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                    ) : null}
-                  </Link>
+                  <div key={mod.id}>
+                    <div className="mb-1.5 px-2.5">
+                      <ModuleLogo module={mod} size="sm" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      {departments.map((dept, index) => {
+                        const active = dept.id === activeDepartmentId;
+                        const accent = ACCENT_CLASSES[dept.accent];
+                        const status = departmentStatus(dept.id);
+                        return (
+                          <Link
+                            key={dept.id}
+                            href={getFirstLessonPath(dept.id)}
+                            prefetch
+                            title={dept.name}
+                            className={`group relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition ${
+                              active
+                                ? "bg-slate-900 text-white shadow-sm"
+                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                            }`}
+                          >
+                            <span
+                              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-semibold tabular-nums ${
+                                active ? "bg-white/15 text-white" : `${accent.soft}`
+                              }`}
+                            >
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-semibold tracking-tight">
+                                {dept.navLabel}
+                              </span>
+                              <span
+                                className={`block truncate text-[11px] ${
+                                  active ? "text-white/55" : "text-slate-400"
+                                }`}
+                              >
+                                {status === "completed"
+                                  ? "Done"
+                                  : status === "in_progress"
+                                    ? "In progress"
+                                    : "Not started"}
+                              </span>
+                            </span>
+                            {status === "completed" ? (
+                              <span
+                                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                                  active ? "bg-emerald-300" : "bg-emerald-500"
+                                }`}
+                              />
+                            ) : active ? (
+                              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                            ) : null}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -144,7 +157,7 @@ export function OnboardingShell({
                   ? "All departments complete."
                   : inProgressCount > 0
                     ? `${inProgressCount} in progress · keep going`
-                    : "Start with Welcome, then move department by department."}
+                    : "Start with the CEO speech, then move through each module."}
               </p>
               {nextOpen ? (
                 <Link
@@ -165,7 +178,8 @@ export function OnboardingShell({
               </div>
               <p className="text-xs font-semibold">Tip</p>
               <p className="mt-1 text-[11px] leading-relaxed text-blue-100/75">
-                Watch the video, then walk the slides once before moving on.
+                CEO speech first, then Welcome to Bitachon, then VMO Aero or
+                Agro · CHL · EEI.
               </p>
             </div>
           </div>
@@ -187,7 +201,9 @@ export function OnboardingShell({
                 </Link>
                 <span className="hidden h-4 w-px bg-slate-300 sm:block" />
                 <p className="truncate text-sm font-medium text-slate-700">
-                  Staff onboarding
+                  {activeModule
+                    ? `${activeModule.shortName} · Staff onboarding`
+                    : "Staff onboarding"}
                 </p>
               </div>
               {identity ? (
@@ -216,7 +232,7 @@ export function OnboardingShell({
 
           <nav
             className="onboarding-mobile-nav sticky bottom-0 z-40 border-t border-slate-200/80 bg-white/95 backdrop-blur-md xl:hidden"
-            aria-label="Departments"
+            aria-label="Modules"
           >
             <div className="flex gap-1.5 overflow-x-auto px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <Link
@@ -229,24 +245,24 @@ export function OnboardingShell({
               >
                 Home
               </Link>
-              {ONBOARDING_DEPARTMENTS.map((dept) => {
-                const active = dept.id === activeDepartmentId;
-                const accent = ACCENT_CLASSES[dept.accent];
-                const status = departmentStatus(dept.id);
+              {ONBOARDING_MODULES.map((mod) => {
+                const departments = getDepartmentsForModule(mod.id);
+                const active = departments.some((d) => d.id === activeDepartmentId);
+                const first = departments[0];
+                if (!first) return null;
                 return (
                   <Link
-                    key={dept.id}
-                    href={getFirstLessonPath(dept.id)}
+                    key={mod.id}
+                    href={getFirstLessonPath(first.id)}
                     prefetch
-                    title={dept.name}
+                    title={mod.name}
                     className={`max-w-[9.5rem] shrink-0 truncate rounded-xl px-3 py-2 text-xs font-semibold transition ${
                       active
-                        ? accent.soft
+                        ? "bg-slate-900 text-white"
                         : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                     }`}
                   >
-                    {dept.navLabel}
-                    {status === "completed" ? " ✓" : ""}
+                    {mod.shortName}
                   </Link>
                 );
               })}

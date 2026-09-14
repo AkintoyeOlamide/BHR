@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { AssignAppraisalDialog } from "@/components/appraisal/assign-appraisal-dialog";
 import { ROLES, roleLabel } from "@/lib/auth/roles";
 
 export type StaffMember = {
@@ -12,6 +13,8 @@ export type StaffMember = {
   role: string;
   department: string | null;
   job_title: string | null;
+  manager_id?: string | null;
+  manager_name?: string | null;
 };
 
 type Filter = "all" | "employees" | "managers";
@@ -19,6 +22,7 @@ type Filter = "all" | "employees" | "managers";
 const roleBadgeClass: Record<string, string> = {
   super_admin: "bg-violet-100 text-violet-800",
   hr_manager: "bg-sky-100 text-sky-800",
+  facility_manager: "bg-teal-100 text-teal-800",
   employee: "bg-slate-100 text-slate-700",
 };
 
@@ -30,30 +34,72 @@ export function StaffDirectory({
   canPromoteToAdmin?: boolean;
 }) {
   const router = useRouter();
+  const [staffList, setStaffList] = useState<StaffMember[]>(staff);
   const [filter, setFilter] = useState<Filter>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Server page may pass stub rows (no email / all employee). Don't wipe
+    // a fresher client-loaded list with those stubs.
+    const propsLookHydrated = staff.some(
+      (member) => Boolean(member.email) || member.role !== ROLES.EMPLOYEE
+    );
+    if (propsLookHydrated) {
+      setStaffList(staff);
+    }
+  }, [staff]);
+
+  useEffect(() => {
+    fetch("/api/employees", { credentials: "same-origin" })
+      .then(async (response) => {
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(body.error ?? "Could not load staff list.");
+        }
+        return body as { employees?: StaffMember[] };
+      })
+      .then((body) => {
+        if (Array.isArray(body.employees) && body.employees.length > 0) {
+          setStaffList(body.employees);
+        }
+      })
+      .catch(() => {
+        // Keep existing state if fallback fetch fails.
+      });
+  }, [staff]);
+
   const counts = useMemo(
     () => ({
-      employees: staff.filter((m) => m.role === ROLES.EMPLOYEE).length,
-      managers: staff.filter((m) => m.role === ROLES.HR_MANAGER).length,
-      admins: staff.filter((m) => m.role === ROLES.SUPER_ADMIN).length,
+      employees: staffList.filter((m) => m.role === ROLES.EMPLOYEE).length,
+      managers: staffList.filter((m) => m.role === ROLES.HR_MANAGER).length,
+      admins: staffList.filter((m) => m.role === ROLES.SUPER_ADMIN).length,
     }),
-    [staff]
+    [staffList]
   );
 
   const filtered = useMemo(() => {
     if (filter === "employees") {
-      return staff.filter((m) => m.role === ROLES.EMPLOYEE);
+      return staffList.filter((m) => m.role === ROLES.EMPLOYEE);
     }
     if (filter === "managers") {
-      return staff.filter(
+      return staffList.filter(
         (m) => m.role === ROLES.HR_MANAGER || m.role === ROLES.SUPER_ADMIN
       );
     }
-    return staff;
-  }, [staff, filter]);
+    return staffList;
+  }, [staffList, filter]);
+
+  async function refreshFromApi() {
+    const response = await fetch("/api/employees", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    const body = await response.json().catch(() => ({}));
+    if (response.ok && Array.isArray(body.employees)) {
+      setStaffList(body.employees);
+    }
+  }
 
   async function updateRole(member: StaffMember, role: string) {
     setLoadingId(member.id);
@@ -63,18 +109,36 @@ export function StaffDirectory({
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ ...member, role }),
+      body: JSON.stringify({
+        id: member.id,
+        email: member.email,
+        full_name: member.full_name,
+        department: member.department,
+        job_title: member.job_title,
+        role,
+      }),
     });
 
     setLoadingId(null);
 
+    const body = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
       setMessage(body.error ?? "Could not update role.");
       return;
     }
 
-    setMessage(`${member.full_name} is now ${roleLabel(role)}.`);
+    const savedRole =
+      typeof body.role === "string" ? body.role.toLowerCase() : role;
+
+    // Update the row immediately so Make manager ↔ Make employee flips now.
+    setStaffList((current) =>
+      current.map((row) =>
+        row.id === member.id ? { ...row, role: savedRole } : row
+      )
+    );
+    setMessage(`${member.full_name} is now ${roleLabel(savedRole)}.`);
+    await refreshFromApi();
     router.refresh();
   }
 
@@ -98,7 +162,7 @@ export function StaffDirectory({
       <div className="flex flex-wrap gap-2">
         {(
           [
-            ["all", `All (${staff.length})`],
+            ["all", `All (${staffList.length})`],
             ["employees", `Employees (${counts.employees})`],
             ["managers", `Managers (${counts.managers + counts.admins})`],
           ] as const
@@ -152,9 +216,14 @@ export function StaffDirectory({
                   const isProtected =
                     member.email === "hr@bhr.com" ||
                     member.email === "admin@bhr.com";
+                  const normalizedRole = (member.role ?? "").trim().toLowerCase();
                   const isManager =
-                    member.role === ROLES.HR_MANAGER ||
-                    member.role === ROLES.SUPER_ADMIN;
+                    normalizedRole === ROLES.HR_MANAGER ||
+                    normalizedRole === ROLES.SUPER_ADMIN;
+                  const isEmployeeLike =
+                    normalizedRole === "" ||
+                    normalizedRole === ROLES.EMPLOYEE ||
+                    (!isManager && normalizedRole !== ROLES.FACILITY_MANAGER);
 
                   return (
                     <tr key={member.id} className="hover:bg-slate-50/60">
@@ -201,21 +270,30 @@ export function StaffDirectory({
                             <span className="text-xs text-slate-400">
                               Protected
                             </span>
-                          ) : member.role === ROLES.EMPLOYEE ? (
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              disabled={loadingId === member.id}
-                              onClick={() =>
-                                updateRole(member, ROLES.HR_MANAGER)
-                              }
-                              className="h-9 px-3 text-xs"
-                            >
-                              {loadingId === member.id
-                                ? "Saving…"
-                                : "Make manager"}
-                            </Button>
-                          ) : isManager && member.role !== ROLES.SUPER_ADMIN ? (
+                          ) : isEmployeeLike ? (
+                            <>
+                              <AssignAppraisalDialog
+                                initialEmployeeId={member.id}
+                                initialEmployeeLabel={`${member.full_name} — ${member.email}`}
+                                triggerLabel="Assign"
+                                triggerClassName="h-9 min-w-0 px-3 text-xs"
+                                onSuccess={(msg) => setMessage(msg)}
+                              />
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                disabled={loadingId === member.id}
+                                onClick={() =>
+                                  updateRole(member, ROLES.HR_MANAGER)
+                                }
+                                className="h-9 px-3 text-xs"
+                              >
+                                {loadingId === member.id
+                                  ? "Saving…"
+                                  : "Make manager"}
+                              </Button>
+                            </>
+                          ) : isManager && normalizedRole !== ROLES.SUPER_ADMIN ? (
                             <Button
                               type="button"
                               variant="ghost"

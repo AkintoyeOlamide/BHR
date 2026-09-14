@@ -172,6 +172,29 @@ export function LessonPlayer({ department, lesson }: LessonPlayerProps) {
                 className="h-[min(55vh,22rem)] w-full bg-slate-100 sm:h-[min(70vh,36rem)]"
               />
             </div>
+          ) : lesson.slidesPptxUrl ? (
+            <div className="relative flex min-h-[16rem] flex-col justify-between bg-gradient-to-br from-[#0b1a3d] via-indigo-950 to-slate-900 p-4 sm:aspect-video sm:min-h-0 sm:p-8 md:p-10">
+              <div className="relative">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/90 sm:text-xs">
+                  Slide deck
+                </p>
+                <h2 className="mt-2 max-w-xl text-xl font-semibold tracking-tight text-white sm:mt-3 sm:text-2xl">
+                  {lesson.title}
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100/80">
+                  Open the PowerPoint deck to walk through the full Operations
+                  Control Center slides.
+                </p>
+              </div>
+              <a
+                href={lesson.slidesPptxUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="relative mt-6 inline-flex w-fit items-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-indigo-900 transition hover:bg-cyan-50"
+              >
+                Open PowerPoint ↗
+              </a>
+            </div>
           ) : (
             <div className="relative flex min-h-[16rem] flex-col justify-between bg-gradient-to-br from-[#0b1a3d] via-indigo-950 to-slate-900 p-4 sm:aspect-video sm:min-h-0 sm:p-8 md:p-10">
               <div
@@ -224,7 +247,7 @@ export function LessonPlayer({ department, lesson }: LessonPlayerProps) {
           )}
         </div>
 
-        {!lesson.slidesPdfUrl ? (
+        {!lesson.slidesPdfUrl && !lesson.slidesPptxUrl ? (
         <div className="onboarding-fade-up onboarding-fade-delay-2 -mx-3 mt-4 flex gap-2 overflow-x-auto px-3 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:gap-2.5 sm:px-0 [&::-webkit-scrollbar]:hidden">
           {lesson.slides.map((item, index) => {
             const active = mode === "slides" && index === slideIndex;

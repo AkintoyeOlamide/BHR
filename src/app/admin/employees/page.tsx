@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation";
 import { PortalShell } from "@/components/layouts/portal-shell";
-import { StaffDirectory } from "@/components/admin/staff-directory";
+import {
+  StaffDirectory,
+  type StaffMember,
+} from "@/components/admin/staff-directory";
 import { requireProfile } from "@/lib/auth/profile";
-import { canAccessAdmin } from "@/lib/auth/roles";
+import { ROLES, canAccessAdmin } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPortalNav } from "@/lib/navigation/portal-nav";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminEmployeesPage() {
   const session = await requireProfile();
@@ -16,17 +21,26 @@ export default async function AdminEmployeesPage() {
   const admin = createAdminClient();
   const { data: employees } = await admin
     .from("profiles")
-    .select("id, email, full_name, role, department, job_title")
+    .select("id, full_name")
     .order("full_name");
+
+  const initialStaff: StaffMember[] = (employees ?? []).map((employee) => ({
+    id: employee.id,
+    full_name: employee.full_name ?? "Unknown",
+    email: "",
+    role: ROLES.EMPLOYEE,
+    department: null,
+    job_title: null,
+  }));
 
   return (
     <PortalShell
       title="Staff"
-      subtitle="View all employees and managers. Promote staff to manager so they can complete assigned appraisals."
+      subtitle="View all employees. Use the Managers tab to promote people and assign who reports to whom."
       role={session.profile.role}
       nav={getPortalNav(session.profile.role, session.profile.email)}
     >
-      <StaffDirectory staff={employees ?? []} canPromoteToAdmin />
+      <StaffDirectory staff={initialStaff} canPromoteToAdmin />
     </PortalShell>
   );
 }

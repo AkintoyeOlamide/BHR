@@ -59,11 +59,11 @@ export function AppraisalPanelHeader({
               {badge}
             </span>
           )}
-          <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg md:text-xl">
+          <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg md:text-xl lg:text-2xl">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-1 hidden max-w-2xl text-sm leading-relaxed text-slate-500 sm:block">
+            <p className="mt-1 max-w-4xl text-xs leading-relaxed text-slate-500 sm:block sm:text-sm">
               {subtitle}
             </p>
           )}
@@ -94,7 +94,7 @@ export function AppraisalFormSection({
 
   return (
     <section
-      className="mx-3 mb-2 rounded-lg p-3 sm:mx-4 sm:p-4 md:mx-6 md:p-5 lg:mx-8"
+      className="mx-2 mb-3 rounded-xl p-3 sm:mx-4 sm:p-4 md:mx-6 md:p-5 lg:mx-8 lg:p-6"
       style={{ backgroundColor: tint }}
     >
       <div className="mb-3 flex items-center gap-2 sm:mb-4">
@@ -110,7 +110,9 @@ export function AppraisalFormSection({
           {title}
         </h3>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">{children}</div>
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
+        {children}
+      </div>
     </section>
   );
 }
@@ -121,11 +123,11 @@ export function AppraisalMetricBar({
   metrics: { label: string; value: string; highlight?: boolean }[];
 }) {
   return (
-    <div className="mx-3 mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 sm:mx-4 sm:gap-3 sm:px-4 sm:py-3 md:mx-6 md:px-5 lg:mx-8">
+    <div className="mx-3 mb-2 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-slate-50 px-3 py-2.5 sm:mx-4 sm:px-4 sm:py-3 md:mx-6 md:px-5 lg:mx-8">
       {metrics.map((metric) => (
         <div
           key={metric.label}
-          className="inline-flex items-center gap-2 text-sm"
+          className="inline-flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-100 sm:flex-none sm:justify-start sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:ring-0"
         >
           <span className="text-slate-500">{metric.label}</span>
           <span
@@ -168,7 +170,7 @@ export function AppraisalTableWrap({
   const color = PANEL_ACCENTS[accent];
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden px-3 pb-2 md:px-6 lg:px-8">
+    <div className="w-full max-w-full px-2 pb-2 sm:px-4 md:px-6 lg:px-8">
       {title && (
         <div className="mb-3 flex items-center gap-2">
           <span
@@ -184,7 +186,9 @@ export function AppraisalTableWrap({
           </h3>
         </div>
       )}
-      <div className="w-full max-w-full rounded-lg bg-slate-50 p-2 md:p-3">{children}</div>
+      <div className="w-full max-w-full rounded-xl bg-slate-50/80 p-1.5 sm:p-2 md:p-3 lg:p-4">
+        {children}
+      </div>
     </div>
   );
 }
@@ -197,11 +201,13 @@ export function AppraisalStickyFooter({
   helper?: string;
 }) {
   return (
-    <div className="sticky bottom-0 z-10 bg-stone-50/95 px-0 py-3 backdrop-blur-sm md:px-6 md:py-4 lg:px-8">
+    <div className="sticky bottom-0 z-10 border-t border-slate-100 bg-stone-50/95 px-3 py-3 backdrop-blur-sm sm:px-4 md:px-6 md:py-4 lg:px-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-3">{children}</div>
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+          {children}
+        </div>
         {helper && (
-          <p className="text-xs leading-relaxed text-slate-500 sm:max-w-md sm:text-right">
+          <p className="text-xs leading-relaxed text-slate-500 sm:max-w-lg sm:text-right">
             {helper}
           </p>
         )}
@@ -268,16 +274,20 @@ export function WeightProgress({
 /* ── Table cell inputs (consistent styling) ── */
 
 export const cellInputClass =
-  "w-full min-h-9 rounded-lg bg-white px-2.5 py-2 text-xs text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 read-only:text-slate-600 read-only:shadow-none md:min-h-10 md:px-3 md:text-sm";
+  "w-full min-h-10 rounded-lg bg-white px-2.5 py-2 text-xs text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 read-only:text-slate-600 read-only:shadow-none md:min-h-11 md:px-3 md:text-sm";
 
 export const cellSelectClass =
-  "h-9 w-full rounded-lg bg-white px-2 text-center text-xs font-medium text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition focus:ring-2 focus:ring-violet-200 disabled:bg-slate-50 disabled:text-slate-500 md:h-10 md:text-sm";
+  "h-10 w-full rounded-lg bg-white px-2 text-center text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition focus:ring-2 focus:ring-violet-200 disabled:bg-slate-50 disabled:text-slate-500 md:h-11";
 
 export const cellTextareaClass =
-  "w-full min-h-[3.5rem] resize-y rounded-lg bg-white px-2.5 py-2 text-xs leading-relaxed text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 md:min-h-[4.5rem] md:px-3 md:text-sm";
+  "w-full min-h-[4rem] resize-y rounded-lg bg-white px-2.5 py-2 text-xs leading-relaxed text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 md:min-h-[4.75rem] md:px-3 md:text-sm lg:min-h-[5.25rem]";
+
+/** Wrapped cell text — smaller type so long KPI / measurement text stays readable */
+export const cellWrappedReadonlyClass =
+  "w-full min-h-[4rem] resize-none rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] leading-snug text-slate-700 shadow-none ring-1 ring-slate-200 outline-none md:min-h-[4.75rem] md:px-3 md:text-xs md:leading-relaxed lg:min-h-[5.25rem] lg:text-[13px]";
 
 export const cellNumberClass =
-  "w-full rounded-lg bg-white px-2 py-2 text-center text-xs font-medium tabular-nums text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 md:text-sm";
+  "w-full min-h-10 rounded-lg bg-white px-2 py-2 text-center text-sm font-semibold tabular-nums text-slate-900 shadow-sm ring-1 ring-slate-200 outline-none transition focus:ring-2 focus:ring-violet-200 read-only:bg-slate-50 md:min-h-11";
 
 export function RowRemoveButton({ onClick }: { onClick: () => void }) {
   return (

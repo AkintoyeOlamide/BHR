@@ -32,14 +32,14 @@ export function Input({
   return (
     <label
       htmlFor={inputId}
-      className={`block ${variant === "landing" ? "space-y-1" : "space-y-1.5"}`}
+      className={`block ${variant === "landing" ? "space-y-1.5" : "space-y-1.5"}`}
     >
       <span
         className={`block font-medium ${
           isForm
             ? "text-xs text-slate-600"
             : variant === "landing"
-              ? "text-xs text-slate-600"
+              ? "text-sm text-slate-600"
               : "text-sm text-slate-700"
         }`}
       >
@@ -54,7 +54,7 @@ export function Input({
         readOnly={readOnly}
         className={`w-full outline-none ${
           variant === "landing"
-            ? `h-9 text-xs ${variants.landing}`
+            ? `h-11 text-sm px-4 ${variants.landing}`
             : isForm
               ? `h-10 text-sm ${variants.form}`
               : `h-10 text-sm sm:h-11 ${variants[variant === "dark" ? "dark" : "light"]}`

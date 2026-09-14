@@ -18,6 +18,14 @@ const DEFAULT_ACCOUNTS = [
     full_name: "HR Manager",
     role: ROLES.HR_MANAGER,
   },
+  {
+    email: "facility@bhr.com",
+    password: "bhradmin",
+    full_name: "Facility Manager",
+    role: ROLES.FACILITY_MANAGER,
+    department: "Admin",
+    job_title: "Facility Manager",
+  },
 ];
 
 export async function POST() {

@@ -3,34 +3,63 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./env";
 import {
   canAccessAdmin,
+  canAccessBerp,
   canAccessFacility,
   canAccessManager,
   getHomeRouteForRole,
+  resolveEffectiveRole,
 } from "@/lib/auth/roles";
 
 async function getProfileAccess(
   supabase: ReturnType<typeof createServerClient>,
   userId: string,
-  userEmail?: string | null
+  userEmail?: string | null,
+  userMetaRole?: string | null
 ) {
-  const { data } = await supabase
-    .from("profiles")
-    .select("role, email")
-    .eq("id", userId)
-    .maybeSingle();
+  const authEmail = (userEmail ?? "").trim().toLowerCase();
 
-  const role = data?.role ?? null;
-  const email = data?.email || userEmail || "";
+  const [{ data: profile }, { data: legacy }] = await Promise.all([
+    supabase.from("profiles").select("role, email").eq("id", userId).maybeSingle(),
+    supabase
+      .from("legacy_employee_profiles")
+      .select("role, email")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
+
+  const role = resolveEffectiveRole(
+    profile?.role,
+    legacy?.role,
+    userMetaRole
+  );
+
+  // Prefer the signed-in auth email for access checks (profile email can be stale).
+  const email =
+    authEmail ||
+    (profile?.email ?? "").trim().toLowerCase() ||
+    (legacy?.email ?? "").trim().toLowerCase();
 
   return { role, email };
+}
+
+function safeNextPath(value: string | null) {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
 }
 
 export async function updateSession(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname;
 
-    // Public onboarding LMS — skip Supabase entirely for fast navigation.
-    if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) {
+    // Public pages — skip Supabase entirely for fast navigation.
+    if (
+      pathname === "/onboarding" ||
+      pathname.startsWith("/onboarding/") ||
+      pathname === "/reporting" ||
+      pathname.startsWith("/facility-report") ||
+      pathname.startsWith("/facility-fix/")
+    ) {
       return NextResponse.next({ request });
     }
 
@@ -62,16 +91,20 @@ export async function updateSession(request: NextRequest) {
 
     const isAuthRoute =
       pathname.startsWith("/login") || pathname.startsWith("/auth");
+    const isBerpRoute = pathname === "/berp" || pathname.startsWith("/berp/");
     const isProtectedRoute =
       pathname.startsWith("/dashboard") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/manager") ||
+      isBerpRoute ||
       pathname === "/facility" ||
       pathname.startsWith("/facility/");
 
     if (!user && isProtectedRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
+      url.search = "";
+      url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
 
@@ -79,10 +112,21 @@ export async function updateSession(request: NextRequest) {
       const { role, email } = await getProfileAccess(
         supabase,
         user.id,
-        user.email
+        user.email,
+        typeof user.user_metadata?.role === "string"
+          ? user.user_metadata.role
+          : null
       );
+      const nextPath = safeNextPath(request.nextUrl.searchParams.get("next"));
       const url = request.nextUrl.clone();
-      url.pathname = getHomeRouteForRole(role, email);
+      url.search = "";
+      url.pathname =
+        nextPath &&
+        (nextPath === "/berp" || nextPath.startsWith("/berp/")
+          ? canAccessBerp(role, email)
+          : true)
+          ? nextPath
+          : getHomeRouteForRole(role, email);
       return NextResponse.redirect(url);
     }
 
@@ -90,7 +134,10 @@ export async function updateSession(request: NextRequest) {
       const { role, email } = await getProfileAccess(
         supabase,
         user.id,
-        user.email
+        user.email,
+        typeof user.user_metadata?.role === "string"
+          ? user.user_metadata.role
+          : null
       );
 
       if (pathname.startsWith("/admin") && !canAccessAdmin(role, email)) {
@@ -99,8 +146,13 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
+      if (isBerpRoute && !canAccessBerp(role, email)) {
+        const url = request.nextUrl.clone();
+        url.pathname = getHomeRouteForRole(role, email);
+        return NextResponse.redirect(url);
+      }
+
       if (pathname.startsWith("/manager") && !canAccessManager(role)) {
-        // Allow full HR emails even if profiles.role is incomplete.
         if (!canAccessAdmin(role, email)) {
           const url = request.nextUrl.clone();
           url.pathname = getHomeRouteForRole(role, email);

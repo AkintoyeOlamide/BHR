@@ -99,6 +99,7 @@ export async function copyTemplateToAppraisal(appraisalId: string) {
         task: kpi.task,
         weight: kpi.weight,
         rating: null,
+        manager_rating: null,
         measurement_area: kpi.measurement_area,
       }))
     );
@@ -117,6 +118,7 @@ export async function copyTemplateToAppraisal(appraisalId: string) {
         key_measurement: item.key_measurement,
         weight: item.weight,
         rating: null,
+        manager_rating: null,
         comments: item.comments,
       }))
     );

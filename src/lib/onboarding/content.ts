@@ -1,4 +1,9 @@
-import type { OnboardingDepartment, OnboardingLesson } from "./types";
+import type {
+  OnboardingDepartment,
+  OnboardingLesson,
+  OnboardingModule,
+  OnboardingModuleId,
+} from "./types";
 
 /** Sample open video until Bitachon uploads department assets */
 const DEMO_VIDEO =
@@ -26,7 +31,7 @@ function lesson(
  * Seed curriculum for Bitachon staff onboarding.
  * Replace video URLs and copy with real department assets when ready.
  */
-export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
+const RAW_ONBOARDING_DEPARTMENTS: Omit<OnboardingDepartment, "moduleId">[] = [
   {
     id: "welcome",
     name: "Welcome to Bitachon",
@@ -141,26 +146,30 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
     navLabel: "Operations",
     tagline: "Flight readiness",
     description:
-      "How operations keep schedules, crews, and aircraft aligned for every mission.",
+      "How VMO Aero operations keep schedules, crews, and aircraft aligned for every mission.",
     accent: "sky",
     lessons: [
       lesson({
         id: "ops-overview",
-        title: "Operations overview",
-        summary: "Roles, handoffs, and the rhythm of a typical operational day.",
-        durationLabel: "14 min",
+        title: "Operations Control Center",
+        summary:
+          "How VMO Aero Operations Control Center keeps schedules, crews, and aircraft aligned.",
+        durationLabel: "8 min",
+        videoUrl: "/media/onboarding/operations.mp4",
+        videoPoster: "/media/onboarding/operations-poster.jpg",
+        slidesPptxUrl: "/media/onboarding/operations-slides.pptx",
         slides: [
           {
             id: "s1",
-            eyebrow: "Mission",
-            title: "Safe, on-time delivery",
+            eyebrow: "OCC",
+            title: "Operations Control Center",
             body: "Operations coordinates people, aircraft, and timelines so every departure and arrival meets safety and service standards.",
           },
           {
             id: "s2",
             eyebrow: "Handoffs",
-            title: "Work with Maintenance & CSE",
-            body: "Clear status updates between Operations, Maintenance, and Cabin Service keep passengers and crews confident.",
+            title: "Stay connected",
+            body: "Clear status updates between Operations, Maintenance, and partner teams keep passengers and crews confident.",
           },
           {
             id: "s3",
@@ -178,7 +187,7 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
     navLabel: "Maintenance",
     tagline: "Airworthiness",
     description:
-      "Engineering standards, records, and how maintenance keeps aircraft ready.",
+      "VMO Aero engineering standards, records, and how maintenance keeps aircraft ready.",
     accent: "orange",
     lessons: [
       lesson({
@@ -186,6 +195,7 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         title: "Maintenance fundamentals",
         summary: "Documentation, tooling discipline, and quality expectations.",
         durationLabel: "15 min",
+        videoPoster: "/media/onboarding/thumbs/maintenance.jpg",
         slides: [
           {
             id: "s1",
@@ -210,6 +220,45 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
     ],
   },
   {
+    id: "commercial",
+    name: "Commercial",
+    navLabel: "Commercial",
+    tagline: "Clients & contracts",
+    description:
+      "How VMO Aero commercial work supports clients, quotes, and revenue discipline across the operation.",
+    accent: "indigo",
+    lessons: [
+      lesson({
+        id: "commercial-overview",
+        title: "Commercial overview",
+        summary:
+          "Client relationships, proposals, and how commercial decisions stay aligned with operations.",
+        durationLabel: "12 min",
+        videoPoster: "/media/onboarding/thumbs/commercial.jpg",
+        slides: [
+          {
+            id: "s1",
+            eyebrow: "Clients",
+            title: "Protect the relationship",
+            body: "Commercial work starts with clear promises. Only commit to timelines and services VMO Aero can deliver safely and on time.",
+          },
+          {
+            id: "s2",
+            eyebrow: "Process",
+            title: "Follow the approval path",
+            body: "Quotes, contracts, and discounts must follow the approved commercial process. If authority is unclear, ask before you commit.",
+          },
+          {
+            id: "s3",
+            eyebrow: "Handoffs",
+            title: "Keep operations in the loop",
+            body: "Share confirmed commercial details early with Operations and other teams so delivery matches what the client was sold.",
+          },
+        ],
+      }),
+    ],
+  },
+  {
     id: "quality-safety",
     name: "Quality & Safety",
     navLabel: "Quality & Safety",
@@ -223,6 +272,7 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         title: "Safety culture",
         summary: "How to report, what happens next, and why silence is risky.",
         durationLabel: "11 min",
+        videoPoster: "/media/onboarding/thumbs/quality-safety.jpg",
         slides: [
           {
             id: "s1",
@@ -260,6 +310,7 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
         title: "Finance basics for staff",
         summary: "What you need to know about claims, vendors, and approvals.",
         durationLabel: "9 min",
+        videoPoster: "/media/onboarding/thumbs/finance.jpg",
         slides: [
           {
             id: "s1",
@@ -483,7 +534,175 @@ export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] = [
       }),
     ],
   },
+  {
+    id: "eei",
+    name: "EEI",
+    navLabel: "EEI",
+    tagline: "Eden Empowerment",
+    description:
+      "Eden Empowerment Initiative — purpose, programmes, and how EEI serves communities.",
+    accent: "amber",
+    lessons: [
+      lesson({
+        id: "eei-overview",
+        title: "EEI overview",
+        summary:
+          "Watch the EEI introduction, then review the Eden Empowerment Initiative slide deck.",
+        durationLabel: "8 min",
+        videoUrl: "/media/onboarding/eei.mp4",
+        videoPoster: "/media/onboarding/eei-poster.jpg",
+        slidesPdfUrl: "/media/onboarding/eei-slides.pdf",
+        slides: [
+          {
+            id: "s1",
+            eyebrow: "EEI",
+            title: "Eden Empowerment Initiative",
+            body: "EEI focuses on empowerment, opportunity, and community impact. Use this path to understand the mission and how your role supports it.",
+          },
+          {
+            id: "s2",
+            eyebrow: "Programmes",
+            title: "Know the priorities",
+            body: "Review the slide deck carefully. Note the key initiatives, who they serve, and how success is measured.",
+          },
+          {
+            id: "s3",
+            eyebrow: "You",
+            title: "Carry the mission forward",
+            body: "Ask questions early, keep records clear, and represent EEI with care in every interaction.",
+          },
+        ],
+      }),
+    ],
+  },
+  {
+    id: "ceo-speech",
+    name: "CEO Speech",
+    navLabel: "CEO Speech",
+    tagline: "Closing message",
+    description:
+      "An opening word from the CEO — culture, expectations, and how we move forward together.",
+    accent: "indigo",
+    lessons: [
+      lesson({
+        id: "ceo-message",
+        title: "CEO speech",
+        summary:
+          "Listen to the CEO’s message for every new team member joining Bitachon.",
+        durationLabel: "3 min",
+        videoUrl: "/media/onboarding/ceo-speech.mp4",
+        videoPoster: "/media/onboarding/ceo-speech-poster.jpg",
+        slides: [
+          {
+            id: "s1",
+            eyebrow: "Message",
+            title: "From the CEO",
+            body: "This short address opens your onboarding path. Take a moment to listen fully and note one commitment you will carry into your role.",
+          },
+          {
+            id: "s2",
+            eyebrow: "Culture",
+            title: "How we work",
+            body: "Bitachon succeeds through discipline, care, and clear communication. Reflect on how the CEO’s words apply to your department.",
+          },
+          {
+            id: "s3",
+            eyebrow: "Next",
+            title: "Continue your path",
+            body: "After the speech, continue to Welcome to Bitachon and the departments that match your role.",
+          },
+        ],
+      }),
+    ],
+  },
 ];
+
+
+/** Company / subsidiary modules that group departments in the LMS. */
+export const ONBOARDING_MODULES: OnboardingModule[] = [
+  {
+    id: "ceo-speech",
+    name: "CEO Speech",
+    shortName: "CEO Speech",
+    description:
+      "Start your onboarding with a direct message from the CEO.",
+    kind: "company",
+    logoUrl: "/media/brands/bitachon.png",
+    departmentIds: ["ceo-speech"],
+  },
+  {
+    id: "bitachon",
+    name: "Bitachon",
+    shortName: "Bitachon",
+    description:
+      "Core Bitachon onboarding — welcome, shared services, and company-wide departments.",
+    kind: "company",
+    logoUrl: "/media/brands/bitachon.png",
+    departmentIds: [
+      "welcome",
+      "admin-facility",
+      "quality-safety",
+      "comms-it",
+      "internal-control",
+      "finance",
+      "hr",
+    ],
+  },
+  {
+    id: "vmo-aero",
+    name: "VMO Aero",
+    shortName: "VMO Aero",
+    description:
+      "Aviation operations under VMO Aero — flight readiness, maintenance, commercial, and related teams.",
+    kind: "subsidiary",
+    logoUrl: "/media/brands/vmo-aero.png",
+    departmentIds: ["operations", "maintenance", "commercial"],
+  },
+  {
+    id: "group-units",
+    name: "Agro, CHL & EEI",
+    shortName: "Agro · CHL · EEI",
+    description:
+      "Sister companies under the group — Agro, CHL, and Eden Empowerment Initiative.",
+    kind: "subsidiary",
+    departmentIds: ["agro", "chl", "eei"],
+  },
+];
+
+const MODULE_BY_DEPARTMENT = new Map<string, OnboardingModuleId>();
+for (const mod of ONBOARDING_MODULES) {
+  for (const departmentId of mod.departmentIds) {
+    MODULE_BY_DEPARTMENT.set(departmentId, mod.id);
+  }
+}
+
+/** Departments ordered by module, then module department order. */
+export const ONBOARDING_DEPARTMENTS: OnboardingDepartment[] =
+  ONBOARDING_MODULES.flatMap((mod) =>
+    mod.departmentIds.map((departmentId) => {
+      const dept = RAW_ONBOARDING_DEPARTMENTS.find((d) => d.id === departmentId);
+      if (!dept) {
+        throw new Error(`Missing onboarding department: ${departmentId}`);
+      }
+      return {
+        ...dept,
+        moduleId: mod.id,
+      };
+    })
+  );
+
+export function getModule(moduleId: string) {
+  return ONBOARDING_MODULES.find((m) => m.id === moduleId) ?? null;
+}
+
+export function getModuleForDepartment(departmentId: string) {
+  const moduleId = MODULE_BY_DEPARTMENT.get(departmentId);
+  return moduleId ? getModule(moduleId) : null;
+}
+
+export function getDepartmentsForModule(moduleId: OnboardingModuleId) {
+  return ONBOARDING_DEPARTMENTS.filter((d) => d.moduleId === moduleId);
+}
 
 export function getDepartment(departmentId: string) {
   return (

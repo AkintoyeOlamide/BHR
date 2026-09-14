@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type Option = { id: string; full_name: string; email: string };
+type Option = { id: string; full_name: string; email: string; manager_id?: string | null };
 type Cycle = { id: string; title: string };
 
 type AssignOptions = {
@@ -17,12 +17,26 @@ type AssignOptions = {
   setupHint?: string;
 };
 
+type SelectedEmployeePayload = {
+  id: string;
+  full_name: string;
+  email: string;
+};
+
 const selectClass =
   "h-11 w-full rounded-xl border border-slate-300 px-4 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-200";
 
 export function AssignAppraisalDialog({
+  initialEmployeeId,
+  initialEmployeeLabel,
+  triggerLabel = "Assign",
+  triggerClassName,
   onSuccess,
 }: {
+  initialEmployeeId?: string;
+  initialEmployeeLabel?: string;
+  triggerLabel?: string;
+  triggerClassName?: string;
   onSuccess?: (message: string) => void;
 }) {
   const router = useRouter();
@@ -32,6 +46,10 @@ export function AssignAppraisalDialog({
   const [fetching, setFetching] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [options, setOptions] = useState<AssignOptions | null>(null);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
+    () => (initialEmployeeId ? [initialEmployeeId] : [])
+  );
+  const [reviewerId, setReviewerId] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -45,6 +63,27 @@ export function AssignAppraisalDialog({
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    setSelectedEmployeeIds(initialEmployeeId ? [initialEmployeeId] : []);
+    setReviewerId("");
+  }, [open, initialEmployeeId]);
+
+  useEffect(() => {
+    if (!options || selectedEmployeeIds.length === 0) return;
+    const managers = selectedEmployeeIds
+      .map(
+        (id) =>
+          options.employees.find((employee) => employee.id === id)?.manager_id
+      )
+      .filter(Boolean) as string[];
+    if (managers.length === 0) return;
+    const unique = [...new Set(managers)];
+    if (unique.length === 1) {
+      setReviewerId(unique[0]);
+    }
+  }, [options, selectedEmployeeIds]);
 
   useEffect(() => {
     if (!open) return;
@@ -72,14 +111,25 @@ export function AssignAppraisalDialog({
     setMessage(null);
 
     const form = new FormData(event.currentTarget);
-    const employeeId = String(form.get("employee_id") ?? "").trim();
-    const reviewerId = String(form.get("reviewer_id") ?? "").trim();
+    const selectedReviewerId =
+      reviewerId || String(form.get("reviewer_id") ?? "").trim();
     const cycleId = String(form.get("cycle_id") ?? "").trim();
     const reviewPeriod = String(form.get("review_period") ?? "").trim();
+    const assessmentType = String(form.get("assessment_type") ?? "both").trim();
+    const employeeIds = selectedEmployeeIds.filter(Boolean);
+    const selectedEmployees: SelectedEmployeePayload[] = (
+      options?.employees ?? []
+    )
+      .filter((employee) => employeeIds.includes(employee.id))
+      .map((employee) => ({
+        id: employee.id,
+        full_name: employee.full_name,
+        email: employee.email,
+      }));
 
-    if (!employeeId && !reviewerId) {
+    if (employeeIds.length === 0 && !selectedReviewerId) {
       setLoading(false);
-      setMessage("Select a manager, an employee, or both.");
+      setMessage("Select a manager, one or more employees, or both.");
       return;
     }
 
@@ -88,10 +138,12 @@ export function AssignAppraisalDialog({
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({
-        employee_id: employeeId || null,
-        reviewer_id: reviewerId || null,
+        employee_ids: employeeIds,
+        selected_employees: selectedEmployees,
+        reviewer_id: selectedReviewerId || null,
         cycle_id: cycleId || null,
         review_period: reviewPeriod || null,
+        assessment_type: assessmentType,
       }),
     });
 
@@ -104,27 +156,24 @@ export function AssignAppraisalDialog({
       return;
     }
 
-    let successMessage = "Appraisal assigned.";
+    const count = body.assigned ?? body.appraisals?.length ?? 1;
+    let successMessage =
+      count > 1
+        ? `${count} appraisals assigned.`
+        : "Appraisal assigned.";
 
-    const managerSent = body.email?.sent;
-    const employeeSent = body.employeeEmail?.sent;
-
-    if (managerSent && employeeSent) {
-      successMessage =
-        "Appraisal assigned. Manager and employee were emailed with login details.";
-    } else if (managerSent) {
-      successMessage =
-        body.managerOnly
-          ? "Manager notified by email with login details."
-          : "Appraisal assigned. Manager was emailed with login details.";
-    } else if (employeeSent) {
-      successMessage =
-        "Appraisal assigned. Employee was emailed with login details.";
-    } else if (body.email?.skipped || body.employeeEmail?.skipped) {
-      successMessage =
-        "Appraisal assigned. Email not sent — configure SMTP in .env.local.";
-    } else if (body.managerOnly) {
+    if (body.managerOnly) {
       successMessage = "Manager notified.";
+    } else if (body.emailsSent > 0) {
+      successMessage =
+        count > 1
+          ? `${count} appraisals assigned. ${body.emailsSent} notification email(s) sent.`
+          : "Appraisal assigned. Notification email sent.";
+    } else if (body.emailsSkipped) {
+      successMessage =
+        count > 1
+          ? `${count} appraisals assigned. Email not sent — configure SMTP in .env.local.`
+          : "Appraisal assigned. Email not sent — configure SMTP in .env.local.";
     }
 
     onSuccess?.(successMessage);
@@ -150,7 +199,7 @@ export function AssignAppraisalDialog({
           role="dialog"
           aria-modal="true"
           aria-labelledby="assign-dialog-title"
-          className="portal-light relative flex max-h-[min(92vh,640px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200"
+          className="relative flex max-h-[min(92vh,640px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
         >
           <div className="shrink-0 border-b border-slate-100 px-6 py-5">
             <h3
@@ -160,8 +209,8 @@ export function AssignAppraisalDialog({
               Assign appraisal
             </h3>
             <p className="mt-1 text-sm text-slate-600">
-              Optionally pick a manager and/or an employee. At least one is
-              required. Cycle and review period are optional.
+              Pick a manager and/or one or more employees. If staff already
+              report to a manager (Managers tab), that manager is pre-selected.
             </p>
           </div>
 
@@ -190,12 +239,14 @@ export function AssignAppraisalDialog({
                   </span>
                   <select
                     name="reviewer_id"
+                    value={reviewerId}
+                    onChange={(e) => setReviewerId(e.target.value)}
                     disabled={!options?.appraisers.length}
                     className={selectClass}
                   >
                     <option value="">
                       {options?.appraisers.length
-                        ? "Select manager"
+                        ? "Select manager (or use assigned manager)"
                         : "No managers available"}
                     </option>
                     {options?.appraisers.map((manager) => (
@@ -206,31 +257,94 @@ export function AssignAppraisalDialog({
                   </select>
                   {options && options.appraisers.length === 0 && (
                     <p className="text-xs leading-relaxed text-amber-800">
-                      Manager accounts are missing. Ask your admin to run the
-                      setup seed, then refresh this page.
+                      No manager accounts yet. Go to the Managers tab, promote
+                      someone, then refresh this page.
                     </p>
                   )}
                 </label>
 
+                <div className="block space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-slate-700">
+                      Employees
+                    </span>
+                    {options && options.employees.length > 0 && !initialEmployeeId && (
+                      <button
+                        type="button"
+                        className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                        onClick={() => {
+                          const allIds = options.employees.map((e) => e.id);
+                          setSelectedEmployeeIds((prev) =>
+                            prev.length === allIds.length ? [] : allIds
+                          );
+                        }}
+                      >
+                        {selectedEmployeeIds.length === options.employees.length
+                          ? "Clear all"
+                          : "Select all"}
+                      </button>
+                    )}
+                  </div>
+                  {initialEmployeeId ? (
+                    <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                      {initialEmployeeLabel ?? "Selected employee"}
+                    </p>
+                  ) : !options?.employees.length ? (
+                    <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                      No employees available
+                    </p>
+                  ) : (
+                    <div className="max-h-48 space-y-1 overflow-y-auto rounded-xl border border-slate-200 p-2">
+                      {options.employees.map((employee) => {
+                        const checked = selectedEmployeeIds.includes(employee.id);
+                        return (
+                          <label
+                            key={employee.id}
+                            className={`flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2 text-sm transition ${
+                              checked
+                                ? "bg-indigo-50 text-indigo-950"
+                                : "text-slate-700 hover:bg-slate-50"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                setSelectedEmployeeIds((prev) =>
+                                  checked
+                                    ? prev.filter((id) => id !== employee.id)
+                                    : [...prev, employee.id]
+                                );
+                              }}
+                              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <span>
+                              <span className="font-medium">{employee.full_name}</span>
+                              <span className="block text-xs text-slate-500">
+                                {employee.email}
+                              </span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {selectedEmployeeIds.length > 0 && (
+                    <p className="text-xs text-slate-500">
+                      {selectedEmployeeIds.length} employee
+                      {selectedEmployeeIds.length === 1 ? "" : "s"} selected
+                    </p>
+                  )}
+                </div>
+
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-slate-700">
-                    Employee
+                    Assessment type
                   </span>
-                  <select
-                    name="employee_id"
-                    disabled={!options?.employees.length}
-                    className={selectClass}
-                  >
-                    <option value="">
-                      {options?.employees.length
-                        ? "Select employee"
-                        : "No employees available"}
-                    </option>
-                    {options?.employees.map((employee) => (
-                      <option key={employee.id} value={employee.id}>
-                        {employee.full_name} — {employee.email}
-                      </option>
-                    ))}
+                  <select name="assessment_type" defaultValue="both" className={selectClass}>
+                    <option value="both">Both (Technical + Behavioural)</option>
+                    <option value="technical">Technical only</option>
+                    <option value="behavioural">Behavioural only</option>
                   </select>
                 </label>
 
@@ -289,9 +403,12 @@ export function AssignAppraisalDialog({
         type="button"
         variant="secondary"
         onClick={() => setOpen(true)}
-        className="min-w-[140px] rounded-xl border-slate-200 font-semibold text-slate-700"
+        className={
+          triggerClassName ??
+          "min-w-[140px] rounded-xl border-slate-200 font-semibold text-slate-700"
+        }
       >
-        Assign
+        {triggerLabel}
       </Button>
       {mounted && modal ? createPortal(modal, document.body) : null}
     </>

@@ -1,4 +1,4 @@
-import { canAccessAdmin, ROLES } from "@/lib/auth/roles";
+import { canAccessAdmin } from "@/lib/auth/roles";
 
 export type NavItem = {
   label: string;
@@ -10,14 +10,17 @@ export const adminNav: NavItem[] = [
   { label: "Appraisals", href: "/admin/appraisals" },
   { label: "Results", href: "/admin/results" },
   { label: "Onboarding", href: "/admin/onboarding" },
+  { label: "Facility", href: "/facility" },
   { label: "Review cycles", href: "/admin/cycles" },
   { label: "Managers", href: "/admin/managers" },
   { label: "Staff", href: "/admin/employees" },
+  { label: "BERP", href: "/berp" },
 ];
 
 export const managerNav: NavItem[] = [
   { label: "Overview", href: "/manager" },
   { label: "Appraisals", href: "/manager/appraisals" },
+  { label: "BERP", href: "/berp" },
 ];
 
 /** Full HR and super admin share the admin portal navigation */

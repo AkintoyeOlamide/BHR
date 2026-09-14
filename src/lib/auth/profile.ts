@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { ROLES, type UserRole } from "./roles";
+import { resolveEffectiveRole, type UserRole } from "./roles";
 
 export type Profile = {
   id: string;
@@ -14,32 +14,74 @@ export type Profile = {
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (data) {
-    return data as Profile;
-  }
-
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user;
-  if (!user || user.id !== userId) return null;
 
-  const metaRole = user.user_metadata?.role as UserRole | undefined;
-  return {
-    id: user.id,
-    email: user.email ?? "",
-    full_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "",
-    role: metaRole ?? ROLES.EMPLOYEE,
-    department: null,
-    job_title: null,
-    manager_id: null,
-    created_at: user.created_at,
-  };
+  const [{ data: profile }, { data: legacy }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    supabase
+      .from("legacy_employee_profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
+
+  const metaRole =
+    user && user.id === userId
+      ? (user.user_metadata?.role as string | undefined)
+      : undefined;
+
+  const role = resolveEffectiveRole(
+    profile?.role,
+    legacy?.role,
+    metaRole
+  );
+
+  const email = (
+    (user && user.id === userId ? user.email : null) ||
+    profile?.email ||
+    legacy?.email ||
+    ""
+  )
+    .trim()
+    .toLowerCase();
+
+  const fullName =
+    (legacy?.full_name as string | undefined)?.trim() ||
+    (profile?.full_name as string | undefined)?.trim() ||
+    (user && user.id === userId
+      ? (user.user_metadata?.full_name as string | undefined)?.trim() ||
+        user.email?.split("@")[0]
+      : null) ||
+    "User";
+
+  if (profile || legacy || (user && user.id === userId)) {
+    return {
+      id: userId,
+      email,
+      full_name: fullName,
+      role,
+      department:
+        (legacy?.department as string | null | undefined) ??
+        (profile?.department as string | null | undefined) ??
+        null,
+      job_title:
+        (legacy?.job_title as string | null | undefined) ??
+        (profile?.job_title as string | null | undefined) ??
+        null,
+      manager_id:
+        (legacy?.manager_id as string | null | undefined) ??
+        (profile?.manager_id as string | null | undefined) ??
+        null,
+      created_at:
+        (profile?.created_at as string | undefined) ||
+        (legacy?.created_at as string | undefined) ||
+        user?.created_at ||
+        new Date().toISOString(),
+    };
+  }
+
+  return null;
 }
 
 export async function requireProfile() {
@@ -57,7 +99,7 @@ export async function requireProfile() {
     user,
     profile: {
       ...profile,
-      email: (profile.email || user.email || "").trim(),
+      email: (profile.email || user.email || "").trim().toLowerCase(),
     },
   };
 }

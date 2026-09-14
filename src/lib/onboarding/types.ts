@@ -16,7 +16,27 @@ export type OnboardingLesson = {
   videoPoster?: string;
   /** Optional PDF deck shown in Slides mode */
   slidesPdfUrl?: string;
+  /** Optional PowerPoint deck (download / open) when PDF is unavailable */
+  slidesPptxUrl?: string;
   slides: OnboardingSlide[];
+};
+
+export type OnboardingModuleId =
+  | "bitachon"
+  | "vmo-aero"
+  | "group-units"
+  | "ceo-speech";
+
+export type OnboardingModule = {
+  id: OnboardingModuleId;
+  name: string;
+  shortName: string;
+  description: string;
+  /** Parent company vs subsidiary brand */
+  kind: "company" | "subsidiary";
+  /** Optional brand mark under /public */
+  logoUrl?: string;
+  departmentIds: string[];
 };
 
 export type OnboardingDepartment = {
@@ -27,5 +47,6 @@ export type OnboardingDepartment = {
   tagline: string;
   description: string;
   accent: "indigo" | "cyan" | "orange" | "emerald" | "sky" | "amber";
+  moduleId: OnboardingModuleId;
   lessons: OnboardingLesson[];
 };

@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import {
-  ACCENT_CLASSES,
+  getDepartmentsForModule,
   getFirstLessonPath,
   ONBOARDING_DEPARTMENTS,
+  ONBOARDING_MODULES,
 } from "@/lib/onboarding/content";
+import type { OnboardingDepartment, OnboardingModule } from "@/lib/onboarding/types";
+import { ModuleLogo } from "@/components/onboarding/module-logo";
 import { useOnboardingTracker } from "@/components/onboarding/onboarding-tracker";
 
 const BRAND = "Bitachon";
@@ -14,6 +17,19 @@ function statusLabel(status: "not_started" | "in_progress" | "completed") {
   if (status === "completed") return "Done";
   if (status === "in_progress") return "In progress";
   return "Not started";
+}
+
+const THUMB_TINT: Record<OnboardingDepartment["accent"], string> = {
+  indigo: "from-[#0b1a3d] via-indigo-900 to-slate-800",
+  cyan: "from-[#0b1a3d] via-cyan-900 to-slate-800",
+  orange: "from-[#0b1a3d] via-orange-900 to-slate-800",
+  emerald: "from-[#0b1a3d] via-emerald-900 to-slate-800",
+  sky: "from-[#0b1a3d] via-sky-900 to-slate-800",
+  amber: "from-[#0b1a3d] via-amber-900 to-slate-800",
+};
+
+function departmentThumb(dept: OnboardingDepartment) {
+  return dept.lessons[0]?.videoPoster ?? null;
 }
 
 export function OnboardingWelcome() {
@@ -78,36 +94,33 @@ export function OnboardingWelcome() {
 
             <div className="onboarding-hero-rule mt-4 h-px w-14 origin-center bg-gradient-to-r from-cyan-300 via-orange-300 to-emerald-300 sm:mt-5 sm:w-16 sm:origin-left" />
 
-            <p className="onboarding-hero-line mt-4 max-w-[18rem] text-[0.95rem] leading-relaxed text-white/65 sm:mt-5 sm:max-w-md sm:text-lg">
+            <p className="onboarding-hero-line mt-5 max-w-md text-base leading-relaxed text-blue-100/75 sm:mt-6 sm:text-lg">
               {line}
             </p>
 
-            <div className="onboarding-hero-cta mt-8 w-full sm:mt-10 sm:w-auto">
+            <div className="onboarding-hero-cta mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10 sm:justify-start">
               <Link
-                href={getFirstLessonPath("welcome")}
-                className="onboarding-hero-btn group relative inline-flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#0b1a3d] sm:w-auto"
+                href={getFirstLessonPath("ceo-speech")}
+                prefetch
+                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0b1a3d] transition hover:bg-cyan-50"
               >
-                <span
-                  className="onboarding-btn-glow pointer-events-none absolute inset-0 rounded-full"
-                  aria-hidden
-                />
-                Begin onboarding
-                <span
-                  className="relative inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#0b1a3d] text-white transition duration-300 group-hover:translate-x-1"
-                  aria-hidden
-                >
-                  →
-                </span>
+                Start onboarding
               </Link>
+              <a
+                href="#modules"
+                className="inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium text-white/70 transition hover:text-white"
+              >
+                Browse modules
+              </a>
             </div>
           </div>
         </div>
 
         <a
-          href="#departments"
+          href="#modules"
           className="onboarding-hero-scroll absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 transition hover:text-white/70 sm:bottom-8 sm:text-[11px]"
         >
-          Departments
+          Modules
           <span className="onboarding-scroll-line relative h-7 w-px overflow-hidden bg-white/15 sm:h-10">
             <span className="onboarding-scroll-pip absolute left-0 top-0 h-3 w-px bg-white/80" />
           </span>
@@ -115,169 +128,245 @@ export function OnboardingWelcome() {
       </section>
 
       <section
-        id="departments"
+        id="modules"
         className="onboarding-depts relative scroll-mt-20 overflow-hidden"
       >
         <div className="onboarding-depts-glow pointer-events-none absolute inset-x-0 top-0 h-64" aria-hidden />
 
         <div className="relative mx-auto max-w-[1400px] px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
-          <div className="onboarding-depts-header mb-6 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
+          <div className="onboarding-depts-header mb-6 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                 Explore
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-900 sm:text-3xl lg:text-4xl">
-                Departments
+                Modules & companies
               </h2>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500 sm:mt-3 sm:text-base">
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600 sm:mt-3">
                 {learner
-                  ? `${learner.full_name}, start with Welcome, then explore how each team works.`
-                  : "Start with Welcome, then explore how each team works."}
+                  ? `${learner.full_name}, start with the CEO speech, then Welcome to Bitachon and your module.`
+                  : "Start with the CEO speech, then Welcome to Bitachon and your module."}
               </p>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm font-medium text-slate-500">
               {completedCount}/{ONBOARDING_DEPARTMENTS.length} complete
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 xl:gap-5">
-            {ONBOARDING_DEPARTMENTS.map((dept, index) => {
-              const accent = ACCENT_CLASSES[dept.accent];
-              const featured = index === 0;
-              const status = departmentStatus(dept.id);
-              const statusText = statusLabel(status);
-
-              if (featured) {
-                const previewPoster =
-                  dept.lessons[0]?.videoPoster ?? dept.lessons[0]?.videoUrl;
-                return (
-                  <Link
-                    key={dept.id}
-                    href={getFirstLessonPath(dept.id)}
-                    prefetch
-                    className="onboarding-dept-featured group relative col-span-full overflow-hidden rounded-[1.15rem] bg-[#07122c] text-white sm:rounded-[1.35rem]"
-                    style={{ animationDelay: "0.05s" }}
-                  >
-                    <div className="relative flex flex-col md:grid md:min-h-[20rem] md:grid-cols-[minmax(0,1.1fr)_minmax(14rem,0.9fr)] lg:min-h-[22rem]">
-                      <div className="relative order-1 aspect-[16/10] w-full overflow-hidden md:order-2 md:aspect-auto md:h-full md:min-h-full md:p-5 md:pl-0 lg:p-6 lg:pl-0">
-                        {previewPoster ? (
-                          <div className="relative h-full w-full overflow-hidden md:rounded-2xl md:ring-1 md:ring-white/10">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={previewPoster}
-                              alt=""
-                              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
-                              loading="eager"
-                              decoding="async"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07122c] via-[#07122c]/25 to-transparent md:via-transparent md:from-[#07122c]/45" />
-                            <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-gradient-to-r from-[#07122c]/40 to-transparent md:block" />
-                          </div>
-                        ) : (
-                          <div className="h-full min-h-[11rem] bg-white/5 md:rounded-2xl md:ring-1 md:ring-white/10" />
-                        )}
-                      </div>
-
-                      <div className="relative order-2 z-[2] flex flex-col justify-between px-5 pb-5 pt-4 sm:px-7 sm:pb-7 sm:pt-5 md:order-1 md:p-8 lg:p-10">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2.5">
-                            {dept.tagline ? (
-                              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300/85">
-                                {dept.tagline}
-                              </span>
-                            ) : null}
-                            <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/65">
-                              {statusText}
-                            </span>
-                          </div>
-
-                          <p className="mt-5 text-sm font-medium text-white/30 sm:mt-7 md:mt-8">
-                            01
-                          </p>
-                          <h3 className="mt-1.5 text-[1.65rem] font-semibold leading-tight tracking-[-0.03em] text-white sm:text-3xl lg:text-4xl">
-                            {dept.name}
-                          </h3>
-                          <p className="mt-2.5 max-w-md text-sm leading-relaxed text-blue-100/70 sm:mt-3 sm:text-[0.95rem]">
-                            {dept.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-6 flex items-center gap-3 sm:mt-8">
-                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0b1a3d] transition duration-300 group-hover:translate-x-1 group-hover:bg-cyan-50 sm:h-11 sm:w-11">
-                            →
-                          </span>
-                          <span className="text-sm font-semibold text-white/90">
-                            Watch intro
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              }
+          <div className="space-y-12 sm:space-y-16">
+            {ONBOARDING_MODULES.map((mod) => {
+              const departments = getDepartmentsForModule(mod.id);
+              const doneInModule = departments.filter(
+                (d) => departmentStatus(d.id) === "completed"
+              ).length;
+              const kindLabel =
+                mod.kind === "company" ? "Company" : "Subsidiary";
 
               return (
-                <Link
-                  key={dept.id}
-                  href={getFirstLessonPath(dept.id)}
-                  prefetch
-                  className="onboarding-dept-card group relative overflow-hidden rounded-[1.15rem] bg-white/80 p-4 backdrop-blur-sm ring-1 ring-slate-200/70 transition duration-300 sm:rounded-[1.25rem] sm:p-6"
-                  style={{ animationDelay: `${0.06 + index * 0.05}s` }}
-                >
-                  <div
-                    className={`onboarding-dept-accent absolute inset-y-0 left-0 w-[3px] origin-top scale-y-0 transition duration-500 group-hover:scale-y-100 ${accent.bar}`}
-                  />
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="text-xs font-semibold tabular-nums text-slate-300 transition group-hover:text-slate-500">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className={`text-xs font-semibold ${
-                        status === "completed"
-                          ? "text-emerald-600"
-                          : status === "in_progress"
-                            ? "text-amber-600"
-                            : "text-slate-400"
-                      }`}
-                    >
-                      {statusText}
-                    </span>
-                  </div>
-
-                  {dept.tagline ? (
-                    <p
-                      className={`mt-5 text-xs font-semibold uppercase tracking-[0.14em] ${accent.text}`}
-                    >
-                      {dept.tagline}
+                <div key={mod.id} className="space-y-4 sm:space-y-5">
+                  <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                        {mod.id === "group-units" ? (
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                            <ModuleLogo
+                              module={{
+                                name: "Agro",
+                                shortName: "Agro",
+                                logoUrl: "/media/brands/agro.png",
+                              }}
+                              size="md"
+                            />
+                            <ModuleLogo
+                              module={{
+                                name: "CHL",
+                                shortName: "CHL",
+                                logoUrl: "/media/brands/chl.png",
+                              }}
+                              size="md"
+                            />
+                            <h3 className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
+                              EEI
+                            </h3>
+                          </div>
+                        ) : mod.logoUrl ? (
+                          <ModuleLogo module={mod} size="lg" />
+                        ) : (
+                          <h3 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                            {mod.name}
+                          </h3>
+                        )}
+                        <span className="rounded-md bg-slate-900/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                          {kindLabel}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-slate-700 ring-1 ring-slate-200/80">
+                      {doneInModule}/{departments.length}
                     </p>
-                  ) : (
-                    <div className="mt-5" />
-                  )}
-                  <h3 className="mt-2 text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
-                    {dept.name}
-                  </h3>
-                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-500">
-                    {dept.description}
-                  </p>
-
-                  <div className="mt-6 flex items-center justify-between">
-                    <span
-                      className={`text-sm font-semibold ${accent.text} transition duration-300 group-hover:translate-x-0.5`}
-                    >
-                      Open path
-                    </span>
-                    <span
-                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${accent.soft} transition duration-300 group-hover:translate-x-1`}
-                    >
-                      →
-                    </span>
                   </div>
-                </Link>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 xl:gap-5">
+                    {departments.map((dept, index) => (
+                      <DepartmentCard
+                        key={dept.id}
+                        dept={dept}
+                        module={mod}
+                        index={index + 1}
+                        featured={dept.id === "welcome" || dept.id === "ceo-speech"}
+                        status={departmentStatus(dept.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
     </div>
+  );
+}
+
+function DepartmentCard({
+  dept,
+  module,
+  index,
+  featured = false,
+  status,
+}: {
+  dept: OnboardingDepartment;
+  module: OnboardingModule;
+  index: number;
+  featured?: boolean;
+  status: "not_started" | "in_progress" | "completed";
+}) {
+  const statusText = statusLabel(status);
+  const thumb = departmentThumb(dept);
+  const lesson = dept.lessons[0];
+
+  if (featured) {
+    return (
+      <Link
+        href={getFirstLessonPath(dept.id)}
+        prefetch
+        className="onboarding-dept-featured group relative col-span-full overflow-hidden rounded-[1.15rem] bg-[#07122c] text-white sm:rounded-[1.35rem]"
+        style={{ animationDelay: "0.05s" }}
+      >
+        <div className="relative flex flex-col md:grid md:min-h-[20rem] md:grid-cols-[minmax(0,1.1fr)_minmax(14rem,0.9fr)] lg:min-h-[22rem]">
+          <div className="relative order-1 aspect-[16/10] w-full overflow-hidden md:order-2 md:aspect-auto md:h-full md:min-h-full md:p-5 md:pl-0 lg:p-6 lg:pl-0">
+            {thumb ? (
+              <div className="relative h-full w-full overflow-hidden md:rounded-2xl md:ring-1 md:ring-white/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumb}
+                  alt=""
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
+                  loading="eager"
+                  decoding="async"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07122c] via-[#07122c]/25 to-transparent md:via-transparent md:from-[#07122c]/45" />
+                <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-gradient-to-r from-[#07122c]/40 to-transparent md:block" />
+                <span className="absolute bottom-4 right-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0b1a3d] shadow-lg transition duration-300 group-hover:scale-105 md:bottom-5 md:right-5">
+                  ▶
+                </span>
+              </div>
+            ) : (
+              <div className="h-full min-h-[11rem] bg-white/5 md:rounded-2xl md:ring-1 md:ring-white/10" />
+            )}
+          </div>
+
+          <div className="relative order-2 z-[2] flex flex-col justify-between px-5 pb-5 pt-4 sm:px-7 sm:pb-7 sm:pt-5 md:order-1 md:p-8 lg:p-10">
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/65">
+                  {statusText}
+                </span>
+              </div>
+
+              <p className="mt-5 text-sm font-medium text-white/30 sm:mt-7 md:mt-8">
+                01
+              </p>
+              <h3 className="mt-1.5 text-[1.65rem] font-semibold leading-tight tracking-[-0.03em] text-white sm:text-3xl lg:text-4xl">
+                {dept.name}
+              </h3>
+              <p className="mt-2.5 max-w-md text-sm leading-relaxed text-blue-100/70 sm:mt-3 sm:text-[0.95rem]">
+                {lesson?.summary ?? dept.description}
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center gap-3 sm:mt-8">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0b1a3d] transition duration-300 group-hover:translate-x-1 group-hover:bg-cyan-50 sm:h-11 sm:w-11">
+                →
+              </span>
+              <span className="text-sm font-semibold text-white/90">
+                {dept.id === "ceo-speech" ? "Watch CEO speech" : "Watch intro"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={getFirstLessonPath(dept.id)}
+      prefetch
+      className="onboarding-dept-card group block overflow-hidden rounded-2xl bg-white p-2.5 ring-1 ring-slate-200/70 transition duration-300 sm:rounded-[1.35rem] sm:p-3"
+      style={{ animationDelay: `${0.04 + index * 0.03}s` }}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-slate-100 sm:rounded-[1.05rem]">
+        {thumb ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumb}
+            alt=""
+            className="h-full w-full object-cover brightness-[1.08] contrast-[1.04] saturate-[1.06] transition duration-500 group-hover:scale-[1.03]"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div
+            className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${THUMB_TINT[dept.accent]}`}
+          >
+            {module.logoUrl ? (
+              <ModuleLogo module={module} size="md" />
+            ) : (
+              <span className="text-xl font-semibold tracking-tight text-white">
+                {dept.navLabel}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-start justify-between gap-3 px-1.5 pb-1 pt-3.5 sm:px-2 sm:pt-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold tabular-nums text-slate-400">
+              {String(index).padStart(2, "0")}
+            </span>
+            <span
+              className={`text-[11px] font-semibold ${
+                status === "completed"
+                  ? "text-emerald-600"
+                  : status === "in_progress"
+                    ? "text-amber-600"
+                    : "text-slate-400"
+              }`}
+            >
+              {statusText}
+            </span>
+          </div>
+          <h3 className="mt-1 truncate text-[0.95rem] font-semibold tracking-tight text-slate-900 sm:text-base">
+            {dept.name}
+          </h3>
+        </div>
+        <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-500 ring-1 ring-slate-200/80 transition duration-300 group-hover:bg-[#0b1a3d] group-hover:text-white group-hover:ring-[#0b1a3d]">
+          →
+        </span>
+      </div>
+    </Link>
   );
 }
