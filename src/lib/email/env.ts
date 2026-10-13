@@ -24,6 +24,20 @@ export function facilityEmailSubject(detail: string) {
   return cleaned ? `BITACHON FACILITY — ${cleaned}` : "BITACHON FACILITY";
 }
 
+/** Display name for laptop-request outbound email. */
+export function getLaptopEmailFrom() {
+  const smtpUser = process.env.SMTP_USER?.trim();
+  const fallback = getEmailFrom();
+  const addressMatch = fallback.match(/<([^>]+)>/);
+  const address = addressMatch?.[1] ?? smtpUser ?? "noreply@bhr.local";
+  return `BITACHON HR <${address}>`;
+}
+
+export function laptopEmailSubject(detail: string) {
+  const cleaned = detail.trim().replace(/\s+/g, " ");
+  return cleaned ? `BITACHON HR — ${cleaned}` : "BITACHON HR";
+}
+
 export function getSmtpConfig() {
   const host = process.env.SMTP_HOST?.trim();
   const user = process.env.SMTP_USER?.trim();

@@ -55,13 +55,22 @@ export function LandingBrandPanel() {
             confusing menus or HR jargon.
           </p>
 
-          <Link
-            href="/reporting"
-            className="mt-6 inline-flex w-fit items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/15"
-          >
-            Report a facility issue
-            <span aria-hidden>→</span>
-          </Link>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              href="/laptoprequest"
+              className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              Request a laptop
+              <span aria-hidden>→</span>
+            </Link>
+            <Link
+              href="/reporting"
+              className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              Report a facility issue
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
 
           <ol className="mt-8 space-y-3.5 sm:mt-10">
             {steps.map((step) => (

@@ -11,6 +11,7 @@ export const adminNav: NavItem[] = [
   { label: "Results", href: "/admin/results" },
   { label: "Onboarding", href: "/admin/onboarding" },
   { label: "Facility", href: "/facility" },
+  { label: "Laptops", href: "/admin/laptops" },
   { label: "Review cycles", href: "/admin/cycles" },
   { label: "Managers", href: "/admin/managers" },
   { label: "Staff", href: "/admin/employees" },

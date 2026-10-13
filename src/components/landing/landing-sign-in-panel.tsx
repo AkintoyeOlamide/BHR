@@ -13,6 +13,12 @@ export function LandingSignInPanel() {
         </span>
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <Link
+            href="/laptoprequest"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800"
+          >
+            Request a laptop
+          </Link>
+          <Link
             href="/reporting"
             className="rounded-lg px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800"
           >
@@ -69,6 +75,13 @@ export function LandingSignInPanel() {
 
           <p className="auth-fade-up auth-fade-up-delay-3 mt-5 text-center text-sm text-slate-500">
             No login?{" "}
+            <Link
+              href="/laptoprequest"
+              className="font-medium text-indigo-600 transition hover:text-indigo-800"
+            >
+              Request a laptop
+            </Link>
+            {" · "}
             <Link
               href="/reporting"
               className="font-medium text-indigo-600 transition hover:text-indigo-800"

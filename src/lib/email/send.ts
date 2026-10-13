@@ -13,6 +13,7 @@ export type SendEmailInput = {
   html: string;
   text: string;
   from?: string;
+  replyTo?: string;
   attachments?: EmailAttachment[];
 };
 
@@ -50,6 +51,7 @@ export async function sendEmail(
     const info = await transporter.sendMail({
       from: input.from ?? getEmailFrom(),
       to: input.to,
+      replyTo: input.replyTo,
       subject: input.subject,
       html: input.html,
       text: input.text,
