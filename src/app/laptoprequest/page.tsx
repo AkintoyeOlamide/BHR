@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { LaptopRequestForm } from "@/components/laptop/laptop-request-form";
 import { AuthPageBackground } from "@/components/auth-page-background";
 
 export const metadata: Metadata = {
-  title: "Request a laptop | Bitachon HR",
-  description:
-    "Submit a laptop request. No login needed. Saved in Bitachon HR and emailed to the team.",
+  title: "Laptop request closed | Bitachon HR",
+  description: "The laptop request form is closed.",
 };
 
 export const viewport: Viewport = {
@@ -41,29 +39,18 @@ export default function LaptopRequestPage() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-3xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] py-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-8 sm:pb-12 lg:px-8">
-        <div className="mb-4 max-w-xl sm:mb-8">
-          <div className="mb-2 flex items-center gap-2">
-            <span
-              className="inline-block h-4 w-1 shrink-0 rounded-full bg-indigo-600 sm:h-5"
-              aria-hidden
-            />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-600 sm:text-[11px] sm:tracking-[0.18em]">
-              Laptop request
-            </p>
-          </div>
-          <h1 className="text-[1.375rem] font-semibold leading-snug tracking-tight text-slate-900 sm:text-3xl">
-            Request a laptop
+      <main className="relative z-10 mx-auto w-full max-w-3xl px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] py-8 sm:px-6 sm:py-16 lg:px-8">
+        <div className="rounded-2xl bg-white p-6 text-center shadow-md shadow-slate-900/5 sm:p-10">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[11px]">
+            Laptop request
+          </p>
+          <h1 className="mt-3 text-[1.375rem] font-semibold tracking-tight text-slate-900 sm:text-3xl">
+            This form is closed
           </h1>
-          <p
-            className="mt-3 rounded-xl bg-red-600 px-3 py-2.5 text-center text-sm font-bold leading-snug tracking-wide text-white shadow-sm shadow-red-600/30 sm:mt-4 sm:px-4 sm:py-3 sm:text-base"
-            role="status"
-          >
-            This form closes on Wednesday at 10pm
+          <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+            Laptop requests are no longer being accepted.
           </p>
         </div>
-
-        <LaptopRequestForm />
       </main>
     </div>
   );

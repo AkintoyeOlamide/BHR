@@ -73,11 +73,7 @@ export function LaptopRequestForm() {
         return;
       }
 
-      setMessage(
-        body.email?.sent === false
-          ? "Request saved. Email could not be sent right now — it is still in the app."
-          : "Request submitted. It has been saved and emailed."
-      );
+      setMessage("Submitted");
       form.reset();
       setDepartment("");
       setDepartmentOther("");

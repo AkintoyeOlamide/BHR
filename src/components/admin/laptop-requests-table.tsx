@@ -21,8 +21,7 @@ export function LaptopRequestsTable({ rows }: Props) {
       <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-5 py-12 text-center">
         <p className="text-sm font-medium text-slate-800">No laptop requests yet</p>
         <p className="mt-2 text-sm text-slate-500">
-          Staff submissions from{" "}
-          <span className="font-medium">/laptoprequest</span> will appear here.
+          No saved laptop requests in the backend yet.
         </p>
       </div>
     );

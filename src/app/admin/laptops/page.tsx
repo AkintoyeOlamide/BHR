@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LaptopRequestsTable } from "@/components/admin/laptop-requests-table";
 import { PortalShell } from "@/components/layouts/portal-shell";
@@ -29,17 +28,11 @@ export default async function AdminLaptopsPage() {
   return (
     <PortalShell
       title="Laptop requests"
-      subtitle="Submissions from the public /laptoprequest form. Each request is also emailed to the app inbox."
+      subtitle="Saved laptop requests. The public form is closed."
       role={session.profile.role}
       nav={getPortalNav(session.profile.role, session.profile.email)}
     >
       <section className="space-y-4">
-        <p className="text-sm text-slate-500">
-          Staff form:{" "}
-          <Link href="/laptoprequest" className="font-medium text-indigo-600 hover:text-indigo-800">
-            /laptoprequest
-          </Link>
-        </p>
         {loadError ? (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             {loadError.toLowerCase().includes("laptop_requests") ||
